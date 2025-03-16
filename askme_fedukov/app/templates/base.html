@@ -9,6 +9,7 @@
   <!-- {% bootstrap_javascript %} -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- {% load static %} -->
   <!-- <link rel="stylesheet" type='text/css' href="{% static 'index.css' %}"> -->
 
@@ -25,72 +26,84 @@
   </style>
 </head>
 
-<body class="mx-2">
-  <header class="bg-light navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary mb-3">
-    <div class="container-fluid justify-content-start">
-      <a class="navbar-brand text-dark" style="font-size: 200%">AskPupkin</a>
-      <div class="">
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-success col-3" type="submit">ASK!</button>
+<body class="px-2 mx-auto">
+  <header class="bg-light navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary mb-3 p-1">
+    <div class="container-fluid justify-content-start flex-nowrap col-lg-10">      
+      <a class="navbar-brand text-dark"><h1>AskPupkin</h1></a>
+      <div class="col">
+        <form class="container d-flex" role="search">
+          <input class="form-control me-2 col" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-success col-2" type="submit">ASK!</button>
         </form>
       </div>
-      <div class="ms-auto d-flex align-items-center me-lg-2">
+      <div class="ms-auto ps-2 d-flex align-items-center ">
         <!-- <img src="{% static 'default_profile.jpg' %}" alt="Profile picture"> -->
         <div style="max-width: 80px; height: auto;">
           <img src="../static/default_profile.jpg" class="img-fluid img-thumbnail rounded-circle" alt="Profile picture">
         </div>
-        <div class="ms-3 d-grid">
-          <div class="row-2 h5"> Dr. Pepper </div>
-          <div class="row">
-            <a class="col">settings</a>
-            <a class="col">log out</a>
+        <div class="container">
+          <div class="row h5 m-0 p-0 mb-1">
+            <span class="m-0 p-0">Dr. Pepper</span> 
           </div>
+          <div class="row m-0 p-0 ">
+            <div class="col m-0 p-0 d-flex flex-nowrap">
+              <a class="ms-0 ps-0 me-2">settings</a>
+              <a class="text-nowrap">log out</a>
+            </div>
+          </div>  
         </div>
       </div>
     </div>
   </header>
 
   <section class="container-fluid mx-2 d-flex">
-    <main class="col-6">
+    <main class="me-5">
       <header class="d-flex align-items-center">
         <h2 class="me-4">New Questions</h2>
         <a class="h-100">Hot questions</a>
       </header>
-      
+
       <section class="card-group w-100 d-grid gap-3">
-        <article class="card d-flex flex-row">
-          <div class="col-2">
-            <img src="" alt="Asker avatar">
+        <article class="card d-flex flex-row justify-content-start">
+          <div class="">
+            <div class="card-body d-grid h-100">
+              <div class="mx-auto" style="max-width: 60px; height: auto;">
+                <img src="../static/default_profile.jpg" class="img-fluid img-thumbnail border-2" alt="Asker avatar">
+              </div>
+              <div class="d-flex gap-2 justify-content-center align-items-center align-self-end">
+                <button class="border-0 bg-body p-0">
+                  <i class="bi bi-plus-circle-fill text-success fs-5"></i>
+                </button>
+                <span class="text-center h5 m-0 p-0 mb-auto">24</span>
+                <button class="border-0 bg-body p-0">
+                  <i class="bi bi-dash-circle fs-5"></i>
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="col-10">
+          <div class="">
             <div class="card-body">
-              <h5 class="card-title">
+              <a class="card-title h5">
                 How to build a moon park?
-              </h5>
-              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-              <div class="container-fluid p-0 d-flex mw-100">
-                <a href="#" class="flex-nowrap">
+              </a>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+                content.</p>
+              <div class="container-fluid p-0 m-0 d-flex bg-body">
+                <a href="#" class="align-self-end flex-nowrap text-nowrap me-2">
                   answer
                   (<span class="d-inline-block">3</span>)
                 </a>
-                <div class="d-flex ms-auto mw-100">
-                  <span class="text-nowrap me-2">Tags:</span> 
-                  <span class="d-flex gap-3 mw-100">
-                    <a href="#" class="badge rounded-pill bg-primary">Black-jack</a> 
-                    <!-- <a href="#">Bender</a> 
-                    <a href="#">Bender</a> 
-                    <a href="#">Bender</a> 
-                    <a href="#">Bender</a> 
-                    <a href="#">Bender</a> 
-                    <a href="#">Bender</a> 
-                    <a href="#">Bender</a>  -->
-                  </span>
+                <div class="m-0 p-0 ms-auto text-end">
+                  <div class="text-nowrap">Tags:</div>
+                  <div class="gap-3 align-items-start">
+                    <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+                    <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            
+
+
           </div>
 
         </article>
@@ -102,7 +115,22 @@
     </main>
 
     <aside class="col-3 border ms-auto">
-      asd
+      <div class="container">
+        <h2 class="mt-3 mb-4">Popular Tags</h2>
+        <ul class="list-group list-group-horizontal flex-wrap">          
+          <ul class="badge rounded-pill text-bg-primary">Primary</span>
+          <span class="badge rounded-pill text-bg-secondary">Secondary</span>
+          <span class="badge rounded-pill text-bg-success">Success</span>
+          <span class="badge rounded-pill text-bg-danger">Danger</span>
+          <span class="badge rounded-pill text-bg-warning">Warning</span>
+          <span class="badge rounded-pill text-bg-info">Info</span>
+          <span class="badge rounded-pill text-bg-light">Light</span>
+          <span class="badge rounded-pill text-bg-dark">Dark</span>        </ul>
+      </div>
+
+      <div>
+        <h2 class="mt-3">Best Members</h2>
+      </div>
     </aside>
   </section>
 
@@ -110,7 +138,7 @@
     asd
   </footer>
 
-  
+
 </body>
 
 </html>
