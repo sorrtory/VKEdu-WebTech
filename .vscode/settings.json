@@ -1,0 +1,7 @@
+{
+  // Remove batisteo.vscode-django
+  // Add ecmel.vscode-html-css
+  "css.styleSheets": [
+    "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+  ],
+}

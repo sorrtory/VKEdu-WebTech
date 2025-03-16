@@ -1,27 +1,116 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>{% block title %}{% endblock %}</title>
-  {% load bootstrap5 %}
-  {% bootstrap_css %}
-  {% bootstrap_javascript %}
+
+  <!-- {% load bootstrap5 %} -->
+  <!-- {% bootstrap_css %} -->
+  <!-- {% bootstrap_javascript %} -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <!-- {% load static %} -->
+  <!-- <link rel="stylesheet" type='text/css' href="{% static 'index.css' %}"> -->
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ponomar&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Ponomar", system-ui;
+      font-weight: 400;
+      font-style: normal;
+    }
+  </style>
 </head>
-<body>
 
-    <div class="container ">
-    <ul class="nav bg-info">
-      <li class="nav-item">
-        <a class="nav-link" href="/">HOME</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link link-light" href="/members">MEMBERS</a>
-      </li>
-    </ul>
-    
-
-    {% block content %}
-    {% endblock %}
-
+<body class="mx-2">
+  <header class="bg-light navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary mb-3">
+    <div class="container-fluid justify-content-start">
+      <a class="navbar-brand text-dark" style="font-size: 200%">AskPupkin</a>
+      <div class="">
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-success col-3" type="submit">ASK!</button>
+        </form>
+      </div>
+      <div class="ms-auto d-flex align-items-center me-lg-2">
+        <!-- <img src="{% static 'default_profile.jpg' %}" alt="Profile picture"> -->
+        <div style="max-width: 80px; height: auto;">
+          <img src="../static/default_profile.jpg" class="img-fluid img-thumbnail rounded-circle" alt="Profile picture">
+        </div>
+        <div class="ms-3 d-grid">
+          <div class="row-2 h5"> Dr. Pepper </div>
+          <div class="row">
+            <a class="col">settings</a>
+            <a class="col">log out</a>
+          </div>
+        </div>
+      </div>
     </div>
+  </header>
+
+  <section class="container-fluid mx-2 d-flex">
+    <main class="col-6">
+      <header class="d-flex align-items-center">
+        <h2 class="me-4">New Questions</h2>
+        <a class="h-100">Hot questions</a>
+      </header>
+      
+      <section class="card-group w-100 d-grid gap-3">
+        <article class="card d-flex flex-row">
+          <div class="col-2">
+            <img src="" alt="Asker avatar">
+          </div>
+          <div class="col-10">
+            <div class="card-body">
+              <h5 class="card-title">
+                How to build a moon park?
+              </h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <div class="container-fluid p-0 d-flex mw-100">
+                <a href="#" class="flex-nowrap">
+                  answer
+                  (<span class="d-inline-block">3</span>)
+                </a>
+                <div class="d-flex ms-auto mw-100">
+                  <span class="text-nowrap me-2">Tags:</span> 
+                  <span class="d-flex gap-3 mw-100">
+                    <a href="#" class="badge rounded-pill bg-primary">Black-jack</a> 
+                    <!-- <a href="#">Bender</a> 
+                    <a href="#">Bender</a> 
+                    <a href="#">Bender</a> 
+                    <a href="#">Bender</a> 
+                    <a href="#">Bender</a> 
+                    <a href="#">Bender</a> 
+                    <a href="#">Bender</a>  -->
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            
+          </div>
+
+        </article>
+
+        <article class="card">
+          asdd
+        </article>
+      </section>
+    </main>
+
+    <aside class="col-3 border ms-auto">
+      asd
+    </aside>
+  </section>
+
+  <footer class="container">
+    asd
+  </footer>
+
+  
 </body>
+
 </html>
