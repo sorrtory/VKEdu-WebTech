@@ -1,16 +1,17 @@
 from django.shortcuts import render
-
-# Create your views here.
-from django.shortcuts import render
+from .models import CardFeed, CardMain, CardAnswer
 
 
 def index(request):
-    data = {"authenticated": True, "MAIN_COL": "8"}
+    feed = {CardFeed(), CardFeed()}
+    data = {"authenticated": True, "MAIN_COL": "8", "feed": feed}
     return render(request, "index.html", context=data)
 
 
 def question(request):
-    data = {"authenticated": True}
+    main = CardMain()
+    answers = [CardAnswer(), CardAnswer()]
+    data = {"authenticated": True, "main":main, "answers":answers}
     return render(request, "question.html", context=data)
 
 

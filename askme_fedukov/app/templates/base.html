@@ -68,11 +68,11 @@
     </div>
   </header>
 
-  <section class="container-fluid mx-auto d-flex col-xl-10 col-xxl-7">
+  <main class="container-fluid mx-auto d-flex col-xl-10 col-xxl-7">
     <!-- Main content -->
-    <main class="container col-{{ MAIN_COL|default:'' }} border">
+    <section class="container col-{{ MAIN_COL|default:'' }} border">
       {% block content %} {% endblock %}
-    </main>
+    </section>
 
     <!-- Aside info -->
     <aside class="ms-auto col-3">
@@ -100,7 +100,7 @@
         </ul>
       </div>
     </aside>
-  </section>
+  </main>
 </body>
 
 </html>

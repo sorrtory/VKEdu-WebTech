@@ -1,5 +1,6 @@
+<!-- SELECTION -->
 <section class="card-group mb-3 w-100 d-grid gap-3">
-  <!-- for card in cards -->
-    {% include 'card.html' with type="explore" %}
-    {% include 'card.html' with type="explore" %}
+  {% for card in feed %}
+    {% include 'card.html' %}
+  {% endfor %}
 </section>
