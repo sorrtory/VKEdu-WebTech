@@ -1,0 +1,88 @@
+<!-- Question -->
+<article class="card border border-{{ CARD_BORDER|default:'' }} d-flex flex-row justify-content-start">
+  <div class="">
+
+    <div class="card-body container">
+      <div class="row mb-1">
+        <div class="col-{{ AVATAR_COL|default:'2' }}">
+          {% load static %}
+          <img src="{% static 'default_profile.jpg' %}" class="img-fluid img-thumbnail border-2" alt="Asker avatar">
+        </div>
+        <div class="col">
+          {% if type == "explore" %}
+          <a class="card-title h5">
+            How to build a moon park?
+          </a>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+            content.</p>
+          {% elif type == "main" %}
+
+          <h2 class="card-title">How to build a moon park?</h2>
+          <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perspiciatis rerum corporis a
+            debitis deleniti suscipit qui aut tenetur, alias assumenda sequi iusto cumque incidunt ipsa obcaecati
+            officiis repellat cupiditate itaque!</p>
+          {% elif type == "answer" %}
+          <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perspiciatis rerum corporis a
+            debitis deleniti suscipit qui aut tenetur, alias assumenda sequi iusto cumque incidunt ipsa obcaecati
+            officiis repellat cupiditate itaque!</p>
+          {% endif %}
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="col-{{ AVATAR_COL|default:'2' }} d-flex justify-content-center">
+          <div class="d-flex gap-2 justify-content-center align-items-center align-self-end">
+            <button class="border-0 bg-body p-0">
+              {% if type == "main" %}
+              <i class="bi bi-plus-circle-fill text-success fs-3"></i>
+              {% else %}
+              <i class="bi bi-plus-circle-fill text-success fs-5"></i>
+              {% endif %}
+            </button>
+            <span class="text-center h5 m-0 p-0 my-auto pb-1">24</span>
+            <button class="border-0 bg-body p-0">
+              {% if type == "main" %}
+              <i class="bi bi-dash-circle fs-3"></i>
+              {% else %}
+              <i class="bi bi-dash-circle fs-5"></i>
+              {% endif %}
+            </button>
+          </div>
+        </div>
+
+        <div class="col">
+          {% if type == "explore" %}
+          <div class="container-fluid p-0 m-0 d-flex bg-body">
+            <a href="#" class="align-self-end flex-nowrap text-nowrap me-2">
+              answer
+              (<span class="d-inline-block">3</span>)
+            </a>
+            <div class="m-0 p-0 ms-auto text-end">
+              <div class="text-nowrap">Tags:</div>
+              <div class="gap-3 align-items-start">
+                <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+                <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+              </div>
+            </div>
+          </div>
+          {% elif type == "main" %}
+          <div class="container d-flex m-0 ps-0 pt-2">
+            <div class="text-nowrap me-2">Tags:</div>
+            <div>
+              <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+              <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+              <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+            </div>
+          </div>
+          {% elif type == "answer" %}
+          <input type="checkbox" class="btn-check" id="btn-check-outlined" autocomplete="off">
+          <label class="btn btn-outline-primary" for="btn-check-outlined">Correct!</label><br>
+          {% else %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</article>

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- New question -->
+<h2 class="row mb-3">New Question</h2>
+<div class="row">
+    <form class="container">
+        <div class="row mb-3">
+            <label for="inputTitle" class="col-sm-2 col-form-label fs-4">Title</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control form-control fs-4" id="inputTitle">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="inputText" class="col-sm-2 col-form-label fs-5">Text</label>
+            <div class="col-sm-10">
+                <textarea class="form-control fs-5" rows="5" id="inputText"></textarea>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="inputTags" class="col-sm-2 col-form-label">Tags</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control form-control" id="inputTags">
+            </div>
+        </div>
+        <label for="btnAsk" class="col-sm-2 col-form-label"></label>
+        <button type="submit" class="btn btn-primary my-2 col-2" id="btnAsk">ASK!</button>
+    </form>
+</div>
+{% endblock %}
