@@ -17,7 +17,7 @@ git clone https://github.com/sorrtory/VKEdu-WebTech
 Set up a virtual enviroment
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
+cd VKEdu-WebTech && python3 -m venv .venv && source .venv/bin/activate
 ```
 
 Install the requirements `django django-bootstrap-v5 django-livereload-server django-bootstrap-icons`
