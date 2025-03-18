@@ -1,48 +1,45 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% load static %}
 <!-- Settings -->
 <h2 class="row mb-3 d-block">Settings: <span>Dr. Paper</span></h2>
 <div class="row">
-    <form class="container">
+    <form class="container needs-align" id="loginForm">
         <div class="row mb-3">
-            <label for="inputLogin" class="col-sm-2 col-form-label">Login</label>
-            <div class="col-sm-5">
+            <label for="inputLogin" class="label-align col-form-label">Login</label>
+            <div class="input-align">
                 <input type="text" class="form-control" id="inputLogin">
             </div>
         </div>
         <div class="row mb-3">
-            <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-            <div class="col-sm-5">
+            <label for="inputEmail" class="label-align col-form-label">Email</label>
+            <div class="input-align">
                 <input type="email" class="form-control" id="inputEmail">
             </div>
         </div>
-
         <div class="row mb-3">
-            <label for="inputNick" class="col-sm-2 col-form-label">Nickname</label>
-            <div class="col-sm-5">
+            <label for="inputNick" class="label-align col-form-label">Nickname</label>
+            <div class="input-align">
                 <input type="text" class="form-control" id="inputNick">
             </div>
         </div>
-
         <div class="row mb-3">
-            <label for="inputNick" class="col-sm-2 col-form-label text-nowrap">Upload avatar</label>
-            <div class="col-sm-5 text-center">
-                {% load static %}
+            <label for="inputNick" class="label-align col-form-label text-nowrap">Upload avatar</label>
+            <div class="input-align text-center">
                 <img class="" src="{% static 'default_profile.jpg' %}" alt="Old profile picture"
                     style="width: 80px; height: auto;">
             </div>
         </div>
-
         <div class="row mb-3">
-            <label for="upload" class="col-sm-2 col-form-label"></label>
-            <div class="col-sm-5">
+            <label for="upload" class="label-align col-form-label"></label>
+            <div class="input-align">
                 <input class="form-control" type="file" id="formFile">
             </div>
         </div>
-
-        <label for="btnSave" class="col-sm-2 col-form-label"></label>
-        <button type="submit" class="btn btn-primary my-2 col-2" id="btnSave">Save</button>
+        <label for="btnSave" class="label-align col-form-label"></label>
+        <button type="submit" class="btn btn-primary my-2 col-4 label-align" id="btnSave">Save</button>
     </form>
 </div>
+<script type="text/javascript" src="{% static 'alignForm.js' %}"></script>
 {% endblock %}

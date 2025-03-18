@@ -2,8 +2,10 @@
 
 {% block content %}
 <header class="d-flex align-items-center">
-  <h2 class="me-4">Tag: <span>bender</span></h2>
+  <h2 class="me-4">Tag: <span>{{ tag }}</span></h2>
 </header>
 {% include 'selection.html' %}
-{% include 'pagination.html' %}
+{% if not not_paginate %}
+  {% include 'pagination.html' %}
+{% endif %}
 {% endblock %}

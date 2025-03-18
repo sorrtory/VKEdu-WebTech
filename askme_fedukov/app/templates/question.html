@@ -2,13 +2,12 @@
 
 
 {% block content %}
-{% include 'card.html' with type="main" %}
+{% include 'card.html' with card=main %}
 <hr>
 <section class="d-flex flex-column gap-2 mb-3">
-    <!-- for card in cards -->
-    {% include 'card.html' with type="answer" %}
-    {% include 'card.html' with type="answer" %}
-    {% include 'card.html' with type="answer" %}
+    {% for card in answers %}
+        {% include 'card.html' %}
+    {% endfor %}
 </section>
 {% include 'pagination.html' %}
 <hr>

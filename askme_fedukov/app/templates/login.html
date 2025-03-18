@@ -3,22 +3,21 @@
 {% block content %}
 <!-- Log in -->
 <h2 class="row mb-3 d-block">Log In</h2>
+<p class="text-danger">Sorry, wrong password!</p>
 <div class="row">
-    <form class="container needs-validation" novalidate>
+    <form class="container needs-validation needs-align" novalidate>
         <div class="row mb-3">
-            <label for="inputLogin" class="col-sm-2 col-form-label">Login</label>
-            <div class="col-sm-5">
+            <label for="inputLogin" class="label-align col-form-label">Login</label>
+            <div class="input-align">
                 <input type="text" class="form-control" id="inputLogin">
                 <div class="valid-feedback">
                     Looks good!
                 </div>
             </div>
-
         </div>
-
         <div class="row mb-3">
-            <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
-            <div class="col-sm-5">
+            <label for="inputPassword" class="label-align col-form-label">Password</label>
+            <div class="input-align">
                 <input type="password" class="form-control" id="inputPassword" required>
                 <div class="input-group has-validation">
                     <div class="invalid-feedback">
@@ -27,41 +26,45 @@
                 </div>
             </div>
         </div>
-
-        <label for="btnSave" class="col-sm-2 col-form-label"></label>
-        <button type="submit" class="btn btn-primary my-2 col-2" id="btnSave">Log in!</button>
+        <div class="row">
+            <label for="btnSaveContainer" class="label-align col-form-label"></label>
+            <div class="col-4 col-md-2" id="btnSaveContainer">
+                <button type="submit" class="btn btn-primary my-2 w-auto text-nowrap" id="btnSave">Log in!</button>
+            </div>
+        </div>
+        <div class="row">
+            <label for="reglink" class="label-align col-form-label"></label>
+            <div class="col-4 col-md-2 w-auto" id="reglink">
+                <a href="/register">Create a new account</a>
+            </div>
+        </div>
     </form>
 </div>
 
-<div class="row">
-    <div class="col-2">
 
-    </div>
-    <div class="col-5">
-        <a href="/register">Create new account</a>
-    </div>
-</div>
 
 <script>
     // Example starter JavaScript for disabling form submissions if there are invalid fields
-(function () {
-  'use strict'
+    (function () {
+        'use strict'
 
-  // Fetch all the forms we want to apply custom Bootstrap validation styles to
-  var forms = document.querySelectorAll('.needs-validation')
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
 
-  // Loop over them and prevent submission
-  Array.prototype.slice.call(forms)
-    .forEach(function (form) {
-      form.addEventListener('submit', function (event) {
-        if (!form.checkValidity()) {
-          event.preventDefault()
-          event.stopPropagation()
-        }
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
 
-        form.classList.add('was-validated')
-      }, false)
-    })
-})()
- </script>
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% load static %}
+<script type="text/javascript" src="{% static 'alignForm.js' %}"></script>
 {% endblock %}
