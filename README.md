@@ -6,7 +6,9 @@
 
 <https://github.com/ziontab/tp-tasks>
 
-## Check this out <sorrtory.ru>
+## Check this out
+[sorrtory.ru](sorrtory.ru)
+
 Or you can try to build it on your own
 
 Clone the code
