@@ -4,11 +4,10 @@
     <div class="card-body container">
       <div class="row mb-1">
         <div class="col-{{ card.AVATAR_SIZE|default:'2' }}">
-          {% load static %}
-          <img src="{% static 'default_profile.jpg' %}" class="img-fluid img-thumbnail border-2" alt="Asker avatar">
+          <img src="{{ card.author.avatar.url }}" class="img-fluid img-thumbnail border-2" alt="Asker avatar" />
         </div>
         <div class="col">
-          <a class="card-title h5" href="/question">
+          <a class="card-title h5" href="{% url 'question' %}">
             {% if card.type == "explore" %}
             <h5>
               {{ card.header }}
@@ -43,7 +42,8 @@
 
           {% else %}
           <!-- Usual buttons -->
-          <div class="d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap px-3 px-md-0 flex-md-nowrap">
+          <div
+            class="d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap px-3 px-md-0 flex-md-nowrap">
             <button class="border-0 bg-body p-0">
               {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.5em' %}
             </button>

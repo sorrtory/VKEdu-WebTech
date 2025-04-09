@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from . import utils
+from django.shortcuts import redirect
 
 
 # Context structure
@@ -50,3 +51,8 @@ def signup(request):
 def settings(request):
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9"}
     return render(request, "settings.html", context=data)
+
+
+def logout(request):
+    # TODO: Logout
+    return redirect('index')
