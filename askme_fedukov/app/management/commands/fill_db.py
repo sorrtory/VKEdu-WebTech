@@ -45,8 +45,10 @@ class Command(BaseCommand):
             Profile.objects.create(user=user)
 
     def create_tags(self, ratio):
+        # See models.Tag.TAG_CHOICES
+        Tag.objects.get_or_create(name='hot', type=1) # Make sure 'hot' tag exists
         for _ in range(ratio):
-            Tag.objects.create(name=fake.word())
+            Tag.objects.create(name=fake.word(), type=random.choices(range(7), weights=[5, 1, 1, 1, 1, 1, 1])[0])
 
     def create_questions(self, ratio):
         profiles = list(Profile.objects.all())
