@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from .models import Question, Answer, Profile
+from .models import Question, Answer, Profile, Tag
 from django.db.models import Count
 
 LOREM = '''Lorem Ipsum is simply dummy text of the printing and typesetting
@@ -99,7 +99,7 @@ class Feed():
         self.current_page = self.pages.get_page(page_number)
 
     @classmethod
-    def get_feed(cls, cards_per_page: int = 3):
+    def get_explore(cls, cards_per_page: int = 3):
         """
         Returns a paginator of CardFeed objects.
         """
@@ -154,3 +154,61 @@ class Feed():
             question.likes.count()
         )
         return card
+
+    @classmethod
+    def get_hot(cls):
+        """
+        Returns a paginator of CardMain objects.
+        """
+        questions = Question.objects.hot().prefetch_related(
+            'tags').annotate(like_count=Count('likes'))
+        cards = [
+            CardFeed(
+                question.id,
+                question.author,
+                question.answers.all(),
+                question.title,
+                question.content,
+                [tag.name for tag in question.tags.all()],
+                question.like_count
+            )
+            for question in questions
+        ]
+        return cls(Paginator(cards, 3))
+
+class Authentication:
+    """
+    This if a class for user session
+    """
+    def __init__(self, authenticated: bool):
+        self.authenticated = authenticated
+        self.user = None
+
+class Context:
+    """
+    This is a class for the context of the page.
+    """
+
+    def __init__(self, auth: Authentication, feed: Feed, title: str, main_col: str, main_border: str):
+        self.auth = auth
+        self.feed = feed
+        self.title = title
+        self.MAIN_COL = main_col
+        self.MAIN_BORDER = main_border
+        self.hot_tags = self.get_hot_tags()
+        self.best_members = self.get_best_members()
+
+    def get_hot_tags(self):
+        """
+        Returns a list of hot tags.
+        """
+        return Tag.objects.get_hot_tags()
+    
+    def get_best_members(self):
+        """
+        Returns a list of best members.
+        """
+        return Profile.objects.get_best_members()
+        
+        
+

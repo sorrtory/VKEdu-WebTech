@@ -1,12 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class ProfileManager(models.Manager):
+    """
+    This is the custom manager for the Profile model.
+    """
+
+    def get_best_members(self):
+        """
+        Returns the best members based on the number of questions and answers.
+        """
+        return self.annotate(
+            num_questions=models.Count('questions'),
+            num_answers=models.Count('answers')
+        ).order_by('-num_answers', '-num_questions')[:5]
 
 class Profile(models.Model):
     """
     This model represents a user profile.
     Based on Django's User model.
     """
+    objects = ProfileManager()
     # questions from Question model
     # question_likes from Question model
     # answers from Answer model
@@ -135,10 +149,19 @@ class Answer(Card):
         Question, related_name='answers', on_delete=models.CASCADE)
 
 
+class TagManager(models.Manager):
+    def get_hot_tags(self):
+        """
+        Returns tags by number of questions.
+        """
+        return self.annotate(num_questions=models.Count('questions')).order_by('-num_questions')[:8]
+    
+
 class Tag(models.Model):
     """
     This model represents a tag that can be associated with cards.
     """
+    objects = TagManager()
     name = models.CharField(max_length=50, unique=True)
     questions = models.ManyToManyField(
         Question, blank=True, related_name='tags')
@@ -158,3 +181,4 @@ class Tag(models.Model):
         Returns the answers related to this tag.
         """
         return self.answer_set.all()
+

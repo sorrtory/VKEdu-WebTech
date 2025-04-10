@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from . import utils
 
-from .utils import Feed
+from .utils import Feed, Context, Authentication
 from django.shortcuts import redirect
 
 
@@ -11,17 +11,28 @@ from django.shortcuts import redirect
 #                           - (up to 9, 3 is already for tags and members aside)
 # "MAIN_BORDER": "0"        - Number of bootstrap border for main block
 # "title": "AskPupkin"      - Title of the page
+# "hot_tags": []            - List of hot tags
 
 # ... each page could have its own context
 # "feed"                      - A class of cards. See utils.py
 # "not_paginate": True        - Remove page navigation
 
 def index(request):
-    feed = Feed.get_feed()
+    feed = Feed.get_explore()
     page_number = request.GET.get('page', 1)
     feed.turn_page_to(page_number)
-    data = {"authenticated": True, "feed": feed, }
+    auth = Authentication(True)
+    data = {"ctx": Context(auth, feed, "AskPupkin", "8", "0")}
     return render(request, "index.html", context=data)
+
+
+def hot(request):
+    feed = Feed.get_hot()
+    page_number = request.GET.get('page', 1)
+    feed.turn_page_to(page_number)
+    auth = Authentication(True)
+    data = {"ctx": Context(auth, feed, "AskPupkin", "8", "0")}
+    return render(request, "hot.html", context=data)
 
 
 def question(request, id):
@@ -63,3 +74,8 @@ def settings(request):
 def logout(request):
     # TODO: Logout
     return redirect('index')
+
+def profile(request):
+    # TODO: Create profile html
+    data = {"MAIN_BORDER": "0", "MAIN_COL": "9"}
+    return render(request, "profile.html", context=data)
