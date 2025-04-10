@@ -10,31 +10,50 @@
 
 Or you can try to build it on your own
 
-Clone the code
+1. Clone the code
 
-```bash
-git clone https://github.com/sorrtory/VKEdu-WebTech
-```
+    ```bash
+    git clone https://github.com/sorrtory/VKEdu-WebTech
+    ```
 
-Set up a virtual enviroment
+2. Set up a virtual enviroment
 
-```bash
-cd VKEdu-WebTech && python3 -m venv .venv && source .venv/bin/activate
-```
+    ```bash
+    cd VKEdu-WebTech && python3 -m venv .venv && source .venv/bin/activate
+    ```
 
-Install the requirements
+3. Create `.env` file like
 
-```bash
-pip install -r requirements.txt
-```
+    ```sh
+    DATABASE_NAME=db
+    DATABASE_USERNAME=user
+    DATABASE_PASSWORD=password
+    DATABASE_HOST=db
+    DATABASE_PORT=5432
 
-Launch the server
+    DEBUG=True
+    DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+    ```
 
-```bash
-python askme_fedukov/manage.py runserver
-```
+4. Install the requirements
 
-And follow [the link](http://127.0.0.1:8000/)
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5. Fill the db
+
+    ```bash
+    python manage.py fill_db 50
+    ```
+
+6. Launch the server
+
+    ```bash
+    python askme_fedukov/manage.py runserver
+    ```
+
+7. Open the [localhost](http://127.0.0.1:8000/)
 
 ## Status
 
