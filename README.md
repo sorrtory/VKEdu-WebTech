@@ -55,7 +55,7 @@ And follow [the link](http://127.0.0.1:8000/)
 
 3. Database:
 
-    Creating test data
+    **Fill with test data**
 
     ```sh
     python manage.py fill_db [ratio]
@@ -68,5 +68,4 @@ And follow [the link](http://127.0.0.1:8000/)
     - Answers: `ratio * 100`
     - Tags: `ratio`
     - User ratings: `ratio * 200`
-
 4. Waiting for the new task...

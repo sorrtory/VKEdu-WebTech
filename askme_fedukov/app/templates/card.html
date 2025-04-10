@@ -7,7 +7,7 @@
           <img src="{{ card.author.avatar.url }}" class="img-fluid img-thumbnail border-2" alt="Asker avatar" />
         </div>
         <div class="col">
-          <a class="card-title h5" href="{% url 'question' %}">
+          <a class="card-title h5" href="{% url 'question' card.id %}">
             {% if card.type == "explore" %}
             <h5>
               {{ card.header }}
@@ -24,7 +24,7 @@
         </div>
       </div>
 
-
+      <!-- TODO Add authentication and likes -->
       <div class="row">
         <div class="col-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
           {% load bootstrap_icons %}
@@ -34,7 +34,7 @@
             <button class="border-0 bg-body p-0">
               {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.75em' %}
             </button>
-            <span class="text-center h3 m-0 p-0 my-auto pb-1">24</span>
+            <span class="text-center h3 m-0 p-0 my-auto pb-1">{{ card.likes }}</span>
             <button class="border-0 bg-body p-0">
               {% bs_icon 'dash-circle' size='1.75em' %}
             </button>
@@ -47,7 +47,7 @@
             <button class="border-0 bg-body p-0">
               {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.5em' %}
             </button>
-            <span class="text-center h5 m-0 p-0 my-auto pb-1">24</span>
+            <span class="text-center h5 m-0 p-0 my-auto pb-1">{{ card.likes }}</span>
             <button class="border-0 bg-body p-0">
               {% bs_icon 'dash-circle' size='1.5em' %}
             </button>
@@ -58,15 +58,16 @@
         <div class="col">
           {% if card.type == "explore" %}
           <div class="container-fluid p-0 m-0 d-flex bg-body">
-            <a href="#" class="align-self-end flex-nowrap text-nowrap me-2">
+            <a href="{% url 'question' card.id %}" class="align-self-end flex-nowrap text-nowrap me-2">
               answer
-              (<span class="d-inline-block">3</span>)
+              (<span class="d-inline-block">{{ card.answers_count }}</span>)
             </a>
             <div class="m-0 p-0 ms-auto text-end">
               <div class="text-nowrap">Tags:</div>
               <div class="gap-3 align-items-start">
-                <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
-                <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+                {% for tag in card.tags %}
+                <a href="{% url 'tag' tag %}" class="badge rounded-pill bg-primary">{{ tag }}</a>
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -74,9 +75,9 @@
           <div class="container d-flex m-0 ps-0 pt-2">
             <div class="text-nowrap me-2">Tags:</div>
             <div>
-              <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
-              <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
-              <a href="#" class="badge rounded-pill bg-primary ">Black-jack</a>
+              {% for tag in card.tags %}
+              <a href="{% url 'tag' tag %}" class="badge rounded-pill bg-primary">{{ tag }}</a>
+              {% endfor %}
             </div>
           </div>
           {% elif card.type == "answer" %}

@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from . import utils
+
+from .utils import Feed
 from django.shortcuts import redirect
 
 
@@ -11,23 +13,28 @@ from django.shortcuts import redirect
 # "title": "AskPupkin"      - Title of the page
 
 # ... each page could have its own context
-# "feed"                      - A pack of cards
+# "feed"                      - A class of cards. See utils.py
 # "not_paginate": True        - Remove page navigation
 
 def index(request):
-    feed = {utils.CardFeed(), utils.CardFeed()}
-    data = {"authenticated": True, "feed": feed}
+    feed = Feed.get_feed()
+    page_number = request.GET.get('page', 1)
+    feed.turn_page_to(page_number)
+    data = {"authenticated": True, "feed": feed, }
     return render(request, "index.html", context=data)
 
 
-def question(request):
-    main = utils.CardMain()
-    answers = [utils.CardAnswer(), utils.CardAnswer()]
+def question(request, id):
+    main = Feed.get_question(id)
+    answers = Feed.get_answers(id)
+    page_number = request.GET.get('page', 1)
+    answers.turn_page_to(page_number)
     data = {"main": main, "answers": answers}
+    print(answers.pages.page_range)
     return render(request, "question.html", context=data)
 
 
-def tag(request):
+def tag(request, name):
     feed = {utils.CardFeed(), utils.CardFeed()}
     data = {"tag": "bender", "feed": feed}
     return render(request, "tag.html", context=data)

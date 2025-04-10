@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("tag/", views.tag, name="tag"),
+    path("tag/<str:name>/", views.tag, name="tag"),
     path("question/<int:id>/", views.question, name="question"),
     path("ask", views.ask, name="ask"),
     path("login", views.login, name="login"),

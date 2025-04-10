@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
 from .models import Question, Answer, Profile
+from django.db.models import Count
 
 LOREM = '''Lorem Ipsum is simply dummy text of the printing and typesetting
 industry. Lorem Ipsum has been the industry's standard dummy text ever since 
@@ -16,25 +17,26 @@ class CardBase:
     This is the frontend base class for all cards.
     """
 
-    def __init__(self, card_type: str, author: Profile = None,
+    def __init__(self, card_type: str, id: int,  author: Profile,
                  header: str = None, text: str = None, tags: list[str] = None, likes: int = 0):
         self.type = card_type   # explore / main / answer
         # Explore cards example is on index.html
         # Main cards example is on question.html. In fact the largest one
         # Answer cards examples are below the main
+
         # Layout
         self.AVATAR_SIZE = "2"  # col-{{AVATAR_SIZE}}
         self.CARD_BORDER = "1"  # border-{{CARD_BORDER}}
 
         # Database
-        author = author
+        self.author = author
+        # (Question.id or Answer.id) Will be used in URL
+        self.id = id
 
-        if header is None:
-            self.header = "LOREM IPSUM"
-        if text is None:
-            self.text = LOREM
-        if tags is None:
-            self.tags = []
+        self.header = "LOREM IPSUM" if header is None else header
+        self.text = LOREM if text is None else text
+        self.tags = ["tag1", "tag2"] if tags is None else tags
+        self.likes = likes
 
 
 class CardFeed(CardBase):
@@ -42,8 +44,11 @@ class CardFeed(CardBase):
     Frontend class for feed cards.
     """
 
-    def __init__(self, author: Profile = None, header: str = None, text: str = None, tags: list = None, likes: int = 0):
-        super().__init__("explore", author, header, text, tags, likes)
+    def __init__(self, id: int, author: Profile, answers: list[Answer] = None,
+                 header: str = None, text: str = None, tags: list = None, likes: int = 0):
+        super().__init__("explore", id, author, header, text, tags, likes)
+        self.answers = answers
+        self.answers_count = answers.count() if answers else 0
 
 
 class CardMain(CardBase):
@@ -51,37 +56,101 @@ class CardMain(CardBase):
     Frontend class for main question cards.
     """
 
-    def __init__(self):
-        super().__init__("main")
+    def __init__(self, id: int, author: Profile,
+                 header: str = None, text: str = None, tags: list = None, likes: int = 0):
+        super().__init__("main", id, author, header, text, tags, likes)
         self.AVATAR_SIZE = "3"
         self.CARD_BORDER = "0"
 
 
 class CardAnswer(CardBase):
-    def __init__(self):
-        super().__init__("answer")
+    """
+    Frontend class for answer cards.
+    """
+
+    def __init__(self, id: int, author: Profile,
+                 text: str = None, tags: list = None, likes: int = 0):
+        super().__init__("answer", id, author, text=text, tags=tags, likes=likes)
 
 
 class Feed():
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def get_feed(self):
-        """
-        Returns a list of CardFeed objects.
-        """
-        cards = Question.objects.new().all()
-        return [CardFeed(card.author, 
-                         card.title, 
-                         card.content, 
-                         list(card.tags.values_list('name', flat=True)), 
-                         card.likes.count()) 
-                for card in cards]
-
-
-def get_pagination(objects, items_per_page: int = 3):
     """
-    Returns a Paginator object with 3 items per page.
+    This is a class for pagination of the cards.
     """
-    return Paginator
+
+    def __init__(self, pages):
+        """
+        Initializes the paginator with the given pages.
+
+        Attributes:
+            pages (Paginator): The Paginator object used for pagination.
+            pages.page_range (list): The range of pages available in the paginator.
+            pages.count (int): The total number of items in the paginator.
+            current_page (Page): The current page object, initialized to the first page of the Paginator.
+            current_page.number (int): The current page number, initialized to 1.
+        """
+        self.pages = pages
+        self.current_page = pages.page(1)
+
+    def turn_page_to(self, page_number):
+        """
+        Turns the page to the specified number.
+        """
+        self.current_page = self.pages.get_page(page_number)
+
+    @classmethod
+    def get_feed(cls, cards_per_page: int = 3):
+        """
+        Returns a paginator of CardFeed objects.
+        """
+
+        questions = Question.objects.new().prefetch_related(
+            'tags').annotate(like_count=Count('likes'))
+        cards = [
+            CardFeed(
+                question.id,
+                question.author,
+                question.answers.all(),
+                question.title,
+                question.content,
+                [tag.name for tag in question.tags.all()],
+                question.like_count
+            )
+            for question in questions
+        ]
+        return cls(Paginator(cards, cards_per_page))
+
+    @classmethod
+    def get_answers(cls, id, cards_per_page: int = 3):
+        """
+        Returns a paginator of CardAnswer objects filtered by id.
+        """
+        answers = Answer.objects.filter(question_id=id).prefetch_related(
+            'tags').annotate(like_count=Count('likes'))
+        cards = [
+            CardAnswer(
+                answer.id,
+                answer.author,
+                answer.content,
+                [tag.name for tag in answer.tags.all()],
+                answer.like_count
+            )
+            for answer in answers
+        ]
+        return cls(Paginator(cards, cards_per_page))
+
+    @classmethod
+    def get_question(cls, id):
+        """
+        Returns a CardMain object by id.
+        """
+        question = Question.objects.get(id=id)
+        card = CardMain(
+            question.id,
+            question.author,
+            question.title,
+            question.content,
+            [tag.name for tag in question.tags.all()],
+            question.likes.count()
+        )
+        return card

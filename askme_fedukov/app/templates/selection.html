@@ -1,6 +1,6 @@
 <!-- SELECTION -->
 <section class="card-group mb-3 w-100 d-grid gap-3">
-  {% for card in feed %}
+  {% for card in feed.current_page %}
     {% include 'card.html' %}
   {% endfor %}
 </section>
