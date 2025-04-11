@@ -6,7 +6,7 @@
 
 <https://github.com/ziontab/tp-tasks>
 
-## Check this out [sorrtory.ru](sorrtory.ru)
+## **[ HEADS UP. OUTDATED RN]** Check this out [sorrtory.ru](sorrtory.ru)
 
 Or you can try to build it on your own
 
