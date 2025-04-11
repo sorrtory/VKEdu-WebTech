@@ -45,8 +45,8 @@ Or you can try to build it on your own
 
     ```sh
     docker compose up -d --build 'db'
-    python manage.py remigrate
-    python manage.py fill_db 50
+    python askme_fedukov/manage.py remigrate
+    python askme_fedukov/manage.py fill_db 50
     ```
 
 6. Launch the server
