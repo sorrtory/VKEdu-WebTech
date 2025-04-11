@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.timezone import now
 from faker import Faker
 import random
+from tqdm import tqdm
 
 fake = Faker()
 
@@ -18,12 +19,22 @@ class Command(BaseCommand):
         ratio = options['ratio']
         self.stdout.write(f'Starting to fill the database with a ratio of {ratio}')
 
-        self.create_test_user()
-        self.create_users(ratio)
-        self.create_tags(ratio)
-        self.create_questions(ratio)
-        self.create_answers(ratio)
-        self.create_likes(ratio)
+        with tqdm(total=5, desc="Filling DB", unit="step") as pbar:
+            self.create_test_user()
+            pbar.update(1)
+
+            self.create_users(ratio)
+            pbar.update(1)
+
+            self.create_tags(ratio)
+            pbar.update(1)
+
+            self.create_questions(ratio)
+            pbar.update(1)
+
+            self.create_answers(ratio)
+            self.create_likes(ratio)
+            pbar.update(1)
 
         self.stdout.write(self.style.SUCCESS(f'Successfully filled the database with test data'))
 
@@ -40,15 +51,16 @@ class Command(BaseCommand):
             user = User.objects.create_user(
                 username=fake.user_name(),
                 email=fake.email(),
-                password='password'
+                password='password',
             )
-            Profile.objects.create(user=user)
+            avatar = random.choice(['avatars/default.png', 'avatars/avatar1.webp', 'avatars/avatar2.jpg'])
+            Profile.objects.create(user=user, avatar=avatar)
 
     def create_tags(self, ratio):
         # See models.Tag.TAG_CHOICES
         Tag.objects.get_or_create(name='hot', type=1) # Make sure 'hot' tag exists
         for _ in range(ratio):
-            Tag.objects.create(name=fake.word(), type=random.choices(range(7), weights=[5, 1, 1, 1, 1, 1, 1])[0])
+            Tag.objects.create(name=fake.word(), type=random.choices(range(6), weights=[5, 0, 1, 1, 1, 1])[0])
 
     def create_questions(self, ratio):
         profiles = list(Profile.objects.all())
@@ -60,7 +72,7 @@ class Command(BaseCommand):
                 content=fake.text(),
                 created_at=now()
             )
-            question.tags.set(random.sample(tags, min(len(tags), random.randint(1, 3))))
+            question.tags.set(random.sample(tags, min(len(tags), random.randint(0, 3))))
 
     def create_answers(self, ratio):
         profiles = list(Profile.objects.all())

@@ -27,7 +27,7 @@
     }
   </style>
 
-  <title>{{ title|default:'AskPupkin' }}</title>
+  <title>{{ ctx.title|default:'AskPupkin' }}</title>
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
 
 </head>
@@ -49,12 +49,12 @@
       <!-- Authenticated -->
       <div class="ms-auto ps-2 d-flex align-items-center">
         <div style="width: 80px; height: auto;">
-          <img src="{% static 'default_profile.jpg' %}" class="img-fluid img-thumbnail rounded-circle"
+          <img src="{{ ctx.auth.profile.avatar.url }}" class="img-fluid img-thumbnail rounded-circle"
             alt="Profile picture">
         </div>
         <div class="container">
           <div class="row h5 m-0 p-0 mb-1">
-            <span class="m-0 p-0">Dr. Pepper</span>
+            <span class="m-0 p-0">{{ ctx.auth.profile.user.username }}</span>
           </div>
           <div class="row m-0 p-0 ">
             <div class="col m-0 p-0 d-flex">
@@ -84,8 +84,8 @@
         <h2 class="h2">Popular Tags</h2>
         <div class="container ">
           {% for tag in ctx.hot_tags %}
-            <a href="{% url 'tag' tag.id %}" class="badge rounded-pill bg-primary">{{ tag.name }}</a>
-          {% endfor %}
+          <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
+        {% endfor %}
         </div>
       </div>
       <div class="container">

@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from . import utils
-
+from django.http import Http404
 from .utils import Feed, Context, Authentication
 from django.shortcuts import redirect
 
@@ -10,44 +9,71 @@ from django.shortcuts import redirect
 # "MAIN_COL": "8"           - Number of bootstrap col for main block
 #                           - (up to 9, 3 is already for tags and members aside)
 # "MAIN_BORDER": "0"        - Number of bootstrap border for main block
-# "title": "AskPupkin"      - Title of the page
-# "hot_tags": []            - List of hot tags
+# "ctx": Context()          - Context class for the main block. See utils.py
 
 # ... each page could have its own context
-# "feed"                      - A class of cards. See utils.py
-# "not_paginate": True        - Remove page navigation
+# "main": CardMain()          - Main question card
 
 def index(request):
-    feed = Feed.get_explore()
+    # Create pages of new questions
     page_number = request.GET.get('page', 1)
-    feed.turn_page_to(page_number)
+    feed = Feed.get_explore(page_number)
+    
+    # Check if user is authenticated
     auth = Authentication(True)
-    data = {"ctx": Context(auth, feed, "AskPupkin", "8", "0")}
+
+    # Create context for the page
+    data = {"ctx": Context(auth, feed, "AskPupkin")}
+
     return render(request, "index.html", context=data)
 
 
 def hot(request):
-    feed = Feed.get_hot()
+    # Create pages of hot questions
     page_number = request.GET.get('page', 1)
-    feed.turn_page_to(page_number)
+    feed = Feed.get_hot(page_number)
+    
+    # Check if user is authenticated
     auth = Authentication(True)
-    data = {"ctx": Context(auth, feed, "AskPupkin", "8", "0")}
+    
+    # Create context for the page
+    data = {"ctx": Context(auth, feed, title="Hot questions")}
     return render(request, "hot.html", context=data)
 
 
 def question(request, id):
-    main = Feed.get_question(id)
-    answers = Feed.get_answers(id)
+    # Get question by id
+    try:
+        main = Feed.get_question(id)
+    except Feed.Question_DoesNotExist:
+        raise Http404("Question not found")
+    
+    # Create pages of answers to the question
     page_number = request.GET.get('page', 1)
-    answers.turn_page_to(page_number)
-    data = {"main": main, "answers": answers}
-    print(answers.pages.page_range)
+    answers = Feed.get_answers(id, page_number)
+    
+    # Check if user is authenticated
+    auth = Authentication(True)
+
+    # Create context for the page
+    data = {"ctx": Context(auth, answers, title=main.header)}
+    data["ctx"].main = main
+
     return render(request, "question.html", context=data)
 
 
 def tag(request, name):
-    feed = {utils.CardFeed(), utils.CardFeed()}
-    data = {"tag": "bender", "feed": feed}
+    # Create pages of questions by tag
+    page_number = request.GET.get('page', 1)
+    feed = Feed.get_questions_by_tag(name, page_number)
+    
+    # Check if user is authenticated
+    auth = Authentication(True)
+    
+    # Create context for the page
+    data = {"ctx": Context(auth, feed, title=f'"{name}" questions')}
+    data["ctx"].tag_name = name
+
     return render(request, "tag.html", context=data)
 
 

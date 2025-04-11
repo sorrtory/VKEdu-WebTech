@@ -15,6 +15,13 @@ class ProfileManager(models.Manager):
             num_answers=models.Count('answers')
         ).order_by('-num_answers', '-num_questions')[:5]
 
+    def get_test_profile(self):
+        """
+        Returns the test profile.
+        Should always be in database. See fil_db.py/create_test_profile()
+        """
+        return self.get_queryset().get(user__username='testuser')
+
 class Profile(models.Model):
     """
     This model represents a user profile.
@@ -168,8 +175,7 @@ class Tag(models.Model):
         (2, "success"),  #
         (3, "warning"),  #
         (4, "info"),     #
-        (5, "light"),    #
-        (6, "dark")      #
+        (5, "dark")      #
     )
     name = models.CharField(max_length=50, unique=True)
     type = models.PositiveSmallIntegerField(choices=TAG_CHOICES, default=0)

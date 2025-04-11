@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=50, unique=True)),
-                ('type', models.PositiveSmallIntegerField(choices=[(0, 'primary'), (1, 'danger'), (2, 'success'), (3, 'warning'), (4, 'info'), (5, 'light'), (6, 'dark')], default=0)),
+                ('type', models.PositiveSmallIntegerField(choices=[(0, 'primary'), (1, 'danger'), (2, 'success'), (3, 'warning'), (4, 'info'), (5, 'dark')], default=0)),
                 ('answers', models.ManyToManyField(blank=True, related_name='tags', to='app.answer')),
                 ('questions', models.ManyToManyField(blank=True, related_name='tags', to='app.question')),
             ],

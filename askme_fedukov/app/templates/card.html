@@ -66,7 +66,7 @@
               <div class="text-nowrap">Tags:</div>
               <div class="gap-3 align-items-start">
                 {% for tag in card.tags %}
-                <a href="{% url 'tag' tag %}" class="badge rounded-pill bg-primary">{{ tag }}</a>
+                  <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
                 {% endfor %}
               </div>
             </div>
@@ -76,7 +76,7 @@
             <div class="text-nowrap me-2">Tags:</div>
             <div>
               {% for tag in card.tags %}
-              <a href="{% url 'tag' tag %}" class="badge rounded-pill bg-primary">{{ tag }}</a>
+              <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
               {% endfor %}
             </div>
           </div>

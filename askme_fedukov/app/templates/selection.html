@@ -1,6 +1,16 @@
 <!-- SELECTION -->
 <section class="card-group mb-3 w-100 d-grid gap-3">
-  {% for card in ctx.feed.current_page %}
-    {% include 'card.html' %}
-  {% endfor %}
+  {% if ctx.feed.pages.count == 0 %}
+    <div class="alert alert-secondary" role="alert">
+      No questions found
+    </div>
+    {% load static %}
+    <img class="img-fluid w-25 mx-auto" src="{% static 'nothing.webp' %}" alt="Nothing here">
+  {% else %}
+    {% for card in ctx.feed.current_page %}
+      {% include 'card.html' %}
+    {% endfor %}
+  {% endif %}
 </section>
+{% include 'pagination.html' %}
+

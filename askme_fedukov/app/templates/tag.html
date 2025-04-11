@@ -2,10 +2,8 @@
 
 {% block content %}
 <header class="d-flex align-items-center">
-  <h2 class="me-4">Tag: <span>{{ tag }}</span></h2>
+  <h2 class="me-4">Tag: <span class="fw-bold">{{ ctx.tag_name }}</span></h2>
 </header>
+
 {% include 'selection.html' %}
-{% if not not_paginate %}
-  {% include 'pagination.html' %}
-{% endif %}
 {% endblock %}

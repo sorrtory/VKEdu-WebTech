@@ -2,14 +2,14 @@
 
 
 {% block content %}
-{% include 'card.html' with card=main %}
+{% include 'card.html' with card=ctx.main %}
 <hr>
 <section class="d-flex flex-column gap-2 mb-3">
-    {% for card in answers.current_page %}
+    {% for card in ctx.feed.current_page %}
         {% include 'card.html' %}
     {% endfor %}
 </section>
-{% include 'pagination.html' with feed=answers%}
+{% include 'pagination.html'%}
 <hr>
 <section class="container">
     <form action="" class="pb-3">

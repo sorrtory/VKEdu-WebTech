@@ -41,9 +41,11 @@ Or you can try to build it on your own
     pip install -r requirements.txt
     ```
 
-5. Fill the db
+5. Start the db
 
-    ```bash
+    ```sh
+    docker compose up -d --build 'db'
+    python manage.py remigrate
     python manage.py fill_db 50
     ```
 
@@ -77,6 +79,8 @@ Or you can try to build it on your own
     **Fill with test data**
 
     ```sh
+    # Clean up db -> makemigrations -> migrate
+    # python manage.py remigrate
     python manage.py fill_db [ratio]
     ```
 
