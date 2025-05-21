@@ -3,6 +3,9 @@ from django.http import Http404
 from .utils import Feed, Context, Authentication
 from django.shortcuts import redirect
 
+from django.contrib.auth.views import LogoutView
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
 
 # Context structure
 # "authenticated": True     - Show the own profile in header
@@ -20,7 +23,7 @@ def index(request):
     feed = Feed.get_explore(page_number)
     
     # Check if user is authenticated
-    auth = Authentication(True)
+    auth = Authentication(request)
 
     # Create context for the page
     data = {"ctx": Context(auth, feed, "AskPupkin")}
@@ -34,7 +37,7 @@ def hot(request):
     feed = Feed.get_hot(page_number)
     
     # Check if user is authenticated
-    auth = Authentication(True)
+    auth = Authentication(request)
     
     # Create context for the page
     data = {"ctx": Context(auth, feed, title="Hot questions")}
@@ -53,7 +56,7 @@ def question(request, id):
     answers = Feed.get_answers(id, page_number)
     
     # Check if user is authenticated
-    auth = Authentication(True)
+    auth = Authentication(request)
 
     # Create context for the page
     data = {"ctx": Context(auth, answers, title=main.header)}
@@ -68,7 +71,7 @@ def tag(request, name):
     feed = Feed.get_questions_by_tag(name, page_number)
     
     # Check if user is authenticated
-    auth = Authentication(True)
+    auth = Authentication(request)
     
     # Create context for the page
     data = {"ctx": Context(auth, feed, title=f'"{name}" questions')}
@@ -81,9 +84,19 @@ def ask(request):
     data = {"MAIN_BORDER": "0"}
     return render(request, "ask.html", context=data)
 
-
 def login(request):
-    data = {"MAIN_BORDER": "0", "MAIN_COL": "9"}
+    # Check if user is authenticated
+    auth = Authentication(request)
+
+    data = {"MAIN_BORDER": "0", "MAIN_COL": "9", 
+            "ctx": Context(auth, None, "Login")}
+
+    # Redirect    
+    if auth.authenticated:
+        if request.GET.get('continue'):
+            return redirect(request.GET.get('continue'))
+        else:
+            return redirect('index')
     return render(request, "login.html", context=data)
 
 
@@ -92,16 +105,17 @@ def signup(request):
     return render(request, "signup.html", context=data)
 
 
+@login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
 def settings(request):
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9"}
     return render(request, "settings.html", context=data)
 
 
-def logout(request):
-    # TODO: Logout
-    return redirect('index')
-
 def profile(request):
     # TODO: Create profile html
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9"}
     return render(request, "profile.html", context=data)
+
+class CustomLoginView(LogoutView):
+    def get_redirect_url(self):
+        return self.request.GET.get('continue') or super().get_redirect_url()

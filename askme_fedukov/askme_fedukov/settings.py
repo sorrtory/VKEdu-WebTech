@@ -13,11 +13,12 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-load_dotenv("../../.env")
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR.parent / Path(".env"), override=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -31,7 +32,6 @@ DEBUG = bool(os.environ.get("DEBUG", default=1))
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -91,7 +91,6 @@ DATABASES = {
          'PORT': os.getenv('DATABASE_PORT', 5432),
      }
  }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -79,8 +79,9 @@ Or you can try to build it on your own
     **Fill with test data**
 
     ```sh
-    # Clean up db -> makemigrations -> migrate
+    # Before filling, you\'re likely to migrate with
     # python manage.py remigrate
+    # Which cleans up db -> makemigrations -> migrate
     python manage.py fill_db [ratio]
     ```
 
@@ -91,4 +92,4 @@ Or you can try to build it on your own
     - Answers: `ratio * 100`
     - Tags: `ratio`
     - User ratings: `ratio * 200`
-4. Waiting for the new task...
+4. Working on forms ...

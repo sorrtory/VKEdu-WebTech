@@ -1,7 +1,12 @@
 from django.core.paginator import Paginator
+
+from .forms import LoginForm
 from .models import Question, Answer, Profile, Tag
 from django.db.models import Count
 from django.http import HttpRequest
+from django.contrib import auth
+
+
 LOREM = '''Lorem Ipsum is simply dummy text of the printing and typesetting
 industry. Lorem Ipsum has been the industry's standard dummy text ever since 
 the 1500s, when an unknown printer took a galley of type and scrambled it to 
@@ -221,11 +226,37 @@ class Feed():
     
 class Authentication:
     """
-    This if a class for user session
+    This is a class for user session
     """
-    def __init__(self, authenticated: bool, profile: Profile = None):
-        self.authenticated = authenticated
-        self.profile = profile if profile is not None else Profile.objects.get_test_profile()
+    def __init__(self, request: HttpRequest):
+        if request is None:
+            raise ValueError("Request cannot be None")
+        
+        self.authenticated = False
+        self.profile = None
+        self.login_form = None
+
+        if auth.get_user(request).is_authenticated:
+            self.authenticated = True
+            self.profile = Profile.objects.get(user=auth.get_user(request))
+        else:
+            self.login_form = LoginForm(request.POST)
+            if self.login_form.is_valid():
+                user = auth.authenticate(request, **self.login_form.cleaned_data)
+                if user is not None:
+                    auth.login(request, user)
+                    self.authenticated = True
+                    self.profile = Profile.objects.get(user=user)
+                else:
+                    self.login_form.add_error(None, "Invalid username or password")
+        
+    def logout(self, request: HttpRequest):
+        """
+        Logs out the user.
+        """
+        auth.logout(request)
+        self.authenticated = False
+        self.profile = None
 
 class Context:
     """

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="language" content="russian"> 
+  <meta name="language" content="russian">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="AskPupkin - Ask and answer questions">
   <meta name="author" content="Fedukov">
@@ -59,7 +59,10 @@
           <div class="row m-0 p-0 ">
             <div class="col m-0 p-0 d-flex">
               <a class="ms-0 ps-0 me-2 col-md" href="{% url 'settings' %}">settings</a>
-              <a class="col-md" href="{% url 'signout' %}">log out</a>
+              <a class="col-md" href="#" onclick="document.getElementById('logout-form').submit()">log out</a>
+              <form id="logout-form" action="{% url 'signout' %}?continue={{ request.path }}" method="post" style="display: none;">
+                {% csrf_token %}
+              </form>
             </div>
           </div>
         </div>
@@ -67,7 +70,7 @@
       {% else %}
       <!-- Not authenticated -->
       <div class="container col-3 me-0 d-flex justify-content-center gap-3 flex-wrap">
-        <a href="{% url 'login' %}">log in</a>
+        <a href="{% url 'login' %}?continue={{ request.path }}">log in</a>
         <a href="{% url 'signup' %}">register</a>
       </div>
       {% endif %}
@@ -85,7 +88,7 @@
         <div class="container ">
           {% for tag in ctx.hot_tags %}
           <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
-        {% endfor %}
+          {% endfor %}
         </div>
       </div>
       <div class="container">
