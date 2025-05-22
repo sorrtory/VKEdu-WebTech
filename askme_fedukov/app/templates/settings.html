@@ -11,7 +11,7 @@
             <div class="input-align">
                 {{ form.username }}
                 {% if form.username.errors %}
-                    <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                <div class="text-danger small">{{ form.username.errors.0 }}</div>
                 {% endif %}
             </div>
         </div>
@@ -20,39 +20,49 @@
             <div class="input-align">
                 {{ form.email }}
                 {% if form.email.errors %}
-                    <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                <div class="text-danger small">{{ form.email.errors.0 }}</div>
                 {% endif %}
             </div>
         </div>
-        <div class="row mb-3">
+
+        {% if form.non_field_errors %}
+        <p class="text-danger mb-0">
+            {{ form.non_field_errors.0 }}
+        </p>
+        {% endif %}
+
+        <div class="row">
             <label for="{{ form.password1.id_for_label }}" class="label-align col-form-label">Password</label>
             <div class="input-align">
                 {{ form.password1 }}
                 {% if form.password1.errors %}
-                    <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+                <div class="text-danger small">{{ form.password1.errors.0 }}</div>
                 {% endif %}
             </div>
         </div>
         <div class="row mb-3">
-            <label for="{{ form.password2.id_for_label }}" class="label-align col-form-label">Repeat new password</label>
+            <label for="{{ form.password2.id_for_label }}" class="label-align col-form-label">Repeat</label>
             <div class="input-align">
                 {{ form.password2 }}
                 {% if form.password2.errors %}
-                    <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+                <div class="text-danger small">{{ form.password2.errors.0 }}</div>
                 {% endif %}
             </div>
         </div>
+
         <div class="row mb-3">
             <label for="{{ form.avatar.id_for_label }}" class="label-align col-form-label">Upload avatar</label>
             <div class="input-align">
                 {{ form.avatar }}
                 {% if form.avatar.errors %}
-                    <div class="text-danger small">{{ form.avatar.errors.0 }}</div>
+                <div class="text-danger small">{{ form.avatar.errors.0 }}</div>
                 {% endif %}
             </div>
         </div>
         <label for="btnSave" class="label-align col-form-label"></label>
-        <button type="submit" class="btn btn-primary my-2 col-2 label-align" id="btnSave">Save</button>
+        <button type="submit" class="btn btn-primary my-2 col-3 col-md-2 label-align" id="btnSave">Save</button>
     </form>
 </div>
+{% load static %}
+<script type="text/javascript" src="{% static 'alignForm.js' %}"></script>
 {% endblock %}

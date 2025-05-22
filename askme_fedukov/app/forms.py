@@ -102,13 +102,15 @@ class SettingsForm(forms.Form):
         if password1 and password2 and password1 != password2:
             raise forms.ValidationError("Passwords do not match.")
         
-        username = cleaned_data.get("username")
-        if username and User.objects.filter(username=username).exists():
-            raise forms.ValidationError('This username is already taken.')
-        
         return cleaned_data
     
     
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username and User.objects.filter(username=username).exists():
+            raise forms.ValidationError('This username is already taken.')
+        return username
+
     def save(self, profile):
         """
         Update the user's profile in the database.

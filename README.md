@@ -68,11 +68,12 @@ Or you can try to build it on your own
     | Index page                        | <http://127.0.0.1:8000/>              | список новых вопросов (главная страница)  |
     | Hot questions page                | <http://127.0.0.1:8000/hot/>          | список “лучших” вопросов                  |
     | Tag page                          | <http://127.0.0.1:8000/tag/blablabla/> | список вопросов по тэгу                   |
-    | Question page                     | <http://127.0.0.1:8000/question/35/>  | страница одного вопроса со списком ответов |
+    | Question page                     | <http://127.0.0.1:8000/question/5/>   | страница одного вопроса со списком ответов |
     | Ask page                          | <http://127.0.0.1:8000/ask/>          | форма создания вопроса                   |
-    | Login page                        | <http://127.0.0.1:8000/login/>        | форма логина                              |
+    | Login page                        | <http://127.0.0.1:8000/login/>        | форм логина                              |
     | Register page                     | <http://127.0.0.1:8000/signup/>       | форма регистрации                        |
     | Settings page                     | <http://127.0.0.1:8000/settings/>     | настройки                                |
+    | Profile page                     | <http://127.0.0.1:8000/profile/0>      | публичная страница пользователя                                |
 
 3. Database:
 

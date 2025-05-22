@@ -123,13 +123,14 @@ def signup(request):
 def settings(request):
     auth = Authentication(request)
 
+    # Create context
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
         "ctx": Context(auth, None, "My profile"),
-        "form": SettingsForm(request.POST, request.FILES, initial={
-            "username": auth.profile.user.username,
-            "email": auth.profile.user.email,
-            "avatar": auth.profile.avatar,
-        })}
+        "form": SettingsForm(request.POST, request.FILES)}
+    # Set default values for the form
+    data["form"].fields['username'].widget.attrs['placeholder'] = auth.profile.user.username
+    data["form"].fields['email'].widget.attrs['placeholder'] = auth.profile.user.email
+    data["form"].initial['avatar'] = auth.profile.avatar
     
     if CheckForm.check_settings_form(request, data["form"]):
         # Redirect to the same page to show updated data
@@ -158,6 +159,6 @@ def profile(request, id):
     return render(request, "profile.html", context=data)
 
 
-class CustomLoginView(LogoutView):
+class CustomLogoutView(LogoutView):
     def get_redirect_url(self):
         return self.request.GET.get('continue') or super().get_redirect_url()

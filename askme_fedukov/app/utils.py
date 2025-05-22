@@ -234,7 +234,6 @@ class Feed():
         """
         try:
             profile = Profile.objects.get(id=id)
-            print(profile)
             data = {
                 "id": profile.id,
                 "username": profile.user.username,

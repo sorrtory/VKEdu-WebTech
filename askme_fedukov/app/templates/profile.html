@@ -19,7 +19,7 @@
             {% if ctx.feed.profile.id == ctx.auth.profile.id %}
                 <div class="row mt-1">
                     <div class="col-12">
-                        <a href="/settings/" class="btn btn-outline-primary">Edit Profile</a>
+                        <a href="{% url 'settings' %}" class="btn btn-outline-primary">Edit Profile</a>
                     </div>
                 </div>
             {% endif %}
