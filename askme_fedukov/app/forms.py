@@ -41,6 +41,48 @@ class ProfileForm(forms.Form):
         user = Profile.objects.create_user(username=username, email=email, password=password, avatar=avatar)
         return user
 
+from string import Template
+from django.utils.safestring import mark_safe
+from django.forms import ImageField
+import re
+
+class PictureWidget(forms.ClearableFileInput):
+    def render(self, name, value, attrs=None, renderer=None):
+        if not attrs:
+            attrs = {}
+        input_html = super().render(name, value, attrs, renderer)
+        # Remove the "clear" checkbox and label from the rendered HTML
+        if hasattr(input_html, 'replace'):
+            input_html = input_html.replace('<br>', '').replace('Clear', '').replace('clear', '')
+            # Remove the clear checkbox and its label
+            input_html = re.sub(r'<input[^>]*type="checkbox"[^>]*>.*?(<label[^>]*>.*?</label>)?', '', input_html, flags=re.DOTALL)
+        img_src = f"/media/{value}" if value else "/media/avatars/default.png"
+        html = f"""
+        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+            <div style="margin-bottom: 10px;">
+                <img id="preview_{name}" src="{img_src}" alt="Avatar" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ccc;" />
+            </div>
+            {input_html}
+        </div>
+        <script>
+        (function() {{
+            var input = document.getElementById('id_{name}');
+            if (input) {{
+                input.addEventListener('change', function(event) {{
+                    var file = event.target.files[0];
+                    if (file) {{
+                        var reader = new FileReader();
+                        reader.onload = function(e) {{
+                            document.getElementById('preview_{name}').src = e.target.result;
+                        }};
+                        reader.readAsDataURL(file);
+                    }}
+                }});
+            }}
+        }})();
+        </script>
+        """
+        return mark_safe(html)
 
 class SettingsForm(forms.Form):
     """
@@ -48,7 +90,7 @@ class SettingsForm(forms.Form):
     """
     username = forms.CharField(max_length=10, label='Login', required=False)
     email = forms.EmailField(label='Email', required=False)
-    avatar = forms.ImageField(label='Avatar', required=False, widget=forms.ClearableFileInput(attrs={'multiple': False}))
+    avatar = forms.ImageField(label='Avatar', required=False, widget=PictureWidget(attrs={'multiple': False}))
     password1 = forms.CharField(widget=forms.PasswordInput, label='Password', required=False)
     password2 = forms.CharField(widget=forms.PasswordInput, label='Repeat password', required=False)
     

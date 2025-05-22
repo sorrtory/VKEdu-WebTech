@@ -54,7 +54,7 @@
         </div>
         <div class="container">
           <div class="row h5 m-0 p-0 mb-1">
-            <span class="m-0 p-0">{{ ctx.auth.profile.user.username }}</span>
+            <a class="m-0 p-0 text-decoration-none text-dark" href="{% url 'profile' 0 %}">{{ ctx.auth.profile.user.username }}</a>
           </div>
           <div class="row m-0 p-0 ">
             <div class="col m-0 p-0 d-flex">
