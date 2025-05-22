@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Profile Page -->
+{% load static %}
+<h2 class="row mb-3 d-block">Profile</h2>
+<div class="container mt-3 mb-4 p-4 shadow rounded bg-light" style="max-width: 600px;">
+    <div class="row mb-3 align-items-center">
+        <div class="col-12 col-md-4 text-center mb-3 mb-md-0">
+            <img src="{{ ctx.feed.profile.avatar.url }}" alt="Profile picture" class="rounded-circle border"
+                style="width: 120px; height: 120px; object-fit: cover;">
+        </div>
+        <div class="col-12 col-md-8 text-center text-md-start">
+            <h4 class="mb-1">{{ ctx.feed.profile.user.username }}</h4>
+            <p class="mb-1 text-muted">{{ ctx.feed.profile.user.email }}</p>
+            {% if ctx.feed.profile.nickname %}
+            <p class="mb-1">Nickname: <span class="fw-semibold">{{ ctx.feed.profile.nickname }}</span></p>
+            {% endif %}
+            {% if ctx.feed.profile.id == ctx.auth.profile.id %}
+                <div class="row mt-1">
+                    <div class="col-12">
+                        <a href="/settings/" class="btn btn-outline-primary">Edit Profile</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <hr>
+    <div class="row mb-2">
+        <div class="col-12">
+            <h5 class="mb-2">Tags used:</h5>
+            {% if ctx.feed.profile.tags.all %}
+            <div>
+                {% for tag in ctx.feed.profile.tags.all %}
+                <span class="badge bg-primary me-1">{{ tag.name }}</span>
+                {% empty %}
+                <span class="text-muted">No tags yet.</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            <span class="text-muted">No tags yet.</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-12">
+            <h5 class="mb-2">Questions asked:</h5>
+            {% if ctx.feed.profile.questions.all %}
+            <ul class="list-group">
+                {% for question in ctx.feed.profile.questions.all %}
+                <li class="list-group-item">
+                    <a href="{% url 'question' question.id %}">{{ question.title }}</a>
+                    <span class="float-end text-muted">({{ question.created_at|date:"d M Y" }})</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No questions asked yet.</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <span class="text-muted">No questions asked yet.</span>
+            {% endif %}
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="row mb-2">
+        <div class="col-12">
+            <h5 class="mb-2">Answers given:</h5>
+            {% if ctx.feed.profile.answers.all %}
+            <ul class="list-group">
+                {% for answer in ctx.feed.profile.answers.all %}
+                <li class="list-group-item">
+                    <a href="{% url 'question' answer.question.id %}#answer-{{ answer.id }}">
+                        {{ answer.content|truncatewords:5 }}
+                    </a>
+                    <span class="float-end text-muted"> ({{ answer.created_at|date:"d M Y" }})</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">No answers given yet.</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <span class="text-muted">No answers given yet.</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

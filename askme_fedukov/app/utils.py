@@ -92,15 +92,13 @@ class BadgeTag():
         return self.name
 
 class Feed():
-    Question_DoesNotExist = Question.DoesNotExist
-    Answer_DoesNotExist = Answer.DoesNotExist
     """
     This is a class for pagination of the cards.
     """
 
-    def __init__(self, pages):
+    def __init__(self, pages=None):
         """
-        Initializes the paginator with the given pages.
+        If pages are given, initializes the paginator with the given pages.
 
         Attributes:
             pages (Paginator): The Paginator object used for pagination.
@@ -109,8 +107,11 @@ class Feed():
             current_page (Page): The current page object, initialized to the first page of the Paginator.
             current_page.number (int): The current page number, initialized to 1.
         """
-        self.pages = pages
-        self.current_page = pages.page(1)
+        if pages is not None:
+            self.pages = pages
+            self.current_page = pages.page(1)
+        
+        self.profile = None
 
     def turn_page_to(self, page_number):
         """
@@ -171,16 +172,19 @@ class Feed():
         """
         Returns a CardMain object by id.
         """
-        question = Question.objects.get(id=id)
-        card = CardMain(
-            question.id,
-            question.author,
-            question.title,
-            question.content,
-            [BadgeTag(tag.name, tag.type) for tag in question.tags.all()],
-            question.likes.count()
-        )
-        return card
+        try:
+            question = Question.objects.get(id=id)
+            card = CardMain(
+                question.id,
+                question.author,
+                question.title,
+                question.content,
+                [BadgeTag(tag.name, tag.type) for tag in question.tags.all()],
+                question.likes.count()
+            )
+            return card
+        except Question.DoesNotExist:
+            return None
 
     @classmethod
     def get_hot(cls, page_number: int, cards_per_page: int = 3):
@@ -224,6 +228,27 @@ class Feed():
         ]
         return cls(Paginator(cards, cards_per_page)).on_page(page_number)
     
+    def get_profile(self, id):
+        """
+        Returns a Profile object by id.
+        """
+        try:
+            profile = Profile.objects.get(id=id)
+            print(profile)
+            data = {
+                "id": profile.id,
+                "username": profile.user.username,
+                "email": profile.user.email,
+                "avatar": profile.avatar.url if profile.avatar else None,
+                "tags": [BadgeTag(tag.name, tag.type) for tag in profile.tags.all()],
+                "questions_count": profile.questions.count(),
+                "answers_count": profile.answers.count(),
+            }
+            self.profile = profile
+            return data
+        except Profile.DoesNotExist:
+            return None
+    
 class Authentication:
     """
     This is a class for user session
@@ -241,14 +266,10 @@ class Authentication:
             self.profile = Profile.objects.get(user=auth.get_user(request))
         else:
             self.login_form = LoginForm(request.POST)
-            if self.login_form.is_valid():
-                user = auth.authenticate(request, **self.login_form.cleaned_data)
-                if user is not None:
-                    auth.login(request, user)
-                    self.authenticated = True
-                    self.profile = Profile.objects.get(user=user)
-                else:
-                    self.login_form.add_error(None, "Invalid username or password")
+            user = CheckForm.check_login_form(request, self.login_form)
+            if user is not None:
+                self.profile = Profile.objects.get(user=user)
+                self.authenticated = True
         
     def logout(self, request: HttpRequest):
         """
@@ -284,3 +305,61 @@ class Context:
 
 
 
+class CheckForm:
+    """
+    This is a class for checking forms.
+    """
+
+    @staticmethod
+    def check_form(request: HttpRequest, form):
+        """
+        Checks the form and returns True if valid, False otherwise.
+        """
+        if request.method == "POST":
+            if form.is_valid():
+                return True
+            else:
+                return False
+        return False
+    
+    @staticmethod
+    def check_login_form(request: HttpRequest, form):
+        """
+        Checks the login form and returns True if valid, False otherwise.
+        """
+        if request.method == "POST":
+            if form.is_valid():
+                user = auth.authenticate(request, **form.cleaned_data)
+                if user is not None:
+                    auth.login(request, user)
+                    return user
+                else:
+                    form.add_error(None, "Invalid username or password")
+        return None
+    
+    @staticmethod
+    def check_registration_form(request: HttpRequest, form):
+        """
+        Checks the registration form and returns True if valid, False otherwise.
+        """
+        if request.method == "POST":
+            if form.is_valid():
+                profile = form.save()
+                if profile:
+                    user = profile.user
+                    auth.login(request, user)
+                    return user
+                else:
+                    form.add_error(None, "Cannot create user")
+        return None
+    
+    @staticmethod
+    def check_settings_form(request: HttpRequest, form):
+        """
+        Checks the registration form and returns True if valid, False otherwise.
+        """
+        if request.method == "POST":
+            if form.is_valid():
+                form.save(request.user.profile)
+                return True
+        return None

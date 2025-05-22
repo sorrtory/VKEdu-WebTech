@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.http import Http404
-from .utils import Feed, Context, Authentication
+from .utils import Feed, Context, Authentication, CheckForm
 from django.shortcuts import redirect
 
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 
+from .forms import ProfileForm, SettingsForm
 # Context structure
 # "authenticated": True     - Show the own profile in header
 # "MAIN_COL": "8"           - Number of bootstrap col for main block
@@ -17,11 +18,12 @@ from django.urls import reverse_lazy
 # ... each page could have its own context
 # "main": CardMain()          - Main question card
 
+
 def index(request):
     # Create pages of new questions
     page_number = request.GET.get('page', 1)
     feed = Feed.get_explore(page_number)
-    
+
     # Check if user is authenticated
     auth = Authentication(request)
 
@@ -35,10 +37,10 @@ def hot(request):
     # Create pages of hot questions
     page_number = request.GET.get('page', 1)
     feed = Feed.get_hot(page_number)
-    
+
     # Check if user is authenticated
     auth = Authentication(request)
-    
+
     # Create context for the page
     data = {"ctx": Context(auth, feed, title="Hot questions")}
     return render(request, "hot.html", context=data)
@@ -46,15 +48,14 @@ def hot(request):
 
 def question(request, id):
     # Get question by id
-    try:
-        main = Feed.get_question(id)
-    except Feed.Question_DoesNotExist:
+    main = Feed.get_question(id)
+    if main is None:
         raise Http404("Question not found")
-    
+
     # Create pages of answers to the question
     page_number = request.GET.get('page', 1)
     answers = Feed.get_answers(id, page_number)
-    
+
     # Check if user is authenticated
     auth = Authentication(request)
 
@@ -69,10 +70,10 @@ def tag(request, name):
     # Create pages of questions by tag
     page_number = request.GET.get('page', 1)
     feed = Feed.get_questions_by_tag(name, page_number)
-    
+
     # Check if user is authenticated
     auth = Authentication(request)
-    
+
     # Create context for the page
     data = {"ctx": Context(auth, feed, title=f'"{name}" questions')}
     data["ctx"].tag_name = name
@@ -80,18 +81,20 @@ def tag(request, name):
     return render(request, "tag.html", context=data)
 
 
+@login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
 def ask(request):
     data = {"MAIN_BORDER": "0"}
     return render(request, "ask.html", context=data)
+
 
 def login(request):
     # Check if user is authenticated
     auth = Authentication(request)
 
-    data = {"MAIN_BORDER": "0", "MAIN_COL": "9", 
+    data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
             "ctx": Context(auth, None, "Login")}
 
-    # Redirect    
+    # Redirect
     if auth.authenticated:
         if request.GET.get('continue'):
             return redirect(request.GET.get('continue'))
@@ -101,20 +104,59 @@ def login(request):
 
 
 def signup(request):
-    data = {"MAIN_BORDER": "0", "MAIN_COL": "9"}
+    auth = Authentication(request)
+
+    data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
+            "ctx": Context(auth, None, "Sign up"),
+            "profile_form": ProfileForm(request.POST, request.FILES)}
+
+    if CheckForm.check_registration_form(request, data["profile_form"]):
+        if request.GET.get('continue'):
+            return redirect(request.GET.get('continue'))
+        else:
+            return redirect('index')
+
     return render(request, "signup.html", context=data)
 
 
 @login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
 def settings(request):
-    data = {"MAIN_BORDER": "0", "MAIN_COL": "9"}
+    auth = Authentication(request)
+
+    data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
+        "ctx": Context(auth, None, "My profile"),
+        "form": SettingsForm(request.POST, request.FILES, initial={
+            "username": auth.profile.user.username,
+            "email": auth.profile.user.email,
+            "avatar": auth.profile.avatar,
+        })}
+    
+    if CheckForm.check_settings_form(request, data["form"]):
+        # Redirect to the same page to show updated data
+        return redirect('settings')
+
     return render(request, "settings.html", context=data)
 
 
-def profile(request):
-    # TODO: Create profile html
-    data = {"MAIN_BORDER": "0", "MAIN_COL": "9"}
+def profile(request, id):
+    """
+    Show user profile by id
+    """
+    auth = Authentication(request)
+
+    # Redirect to own profile with id==0
+    if auth.authenticated and id == 0:
+        id = auth.profile.id
+
+    # Get profile by id
+    feed = Feed()
+    if feed.get_profile(id) is None:
+        raise Http404("Profile not found")
+    
+    data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
+            "ctx": Context(auth, feed, "Profile"), }
     return render(request, "profile.html", context=data)
+
 
 class CustomLoginView(LogoutView):
     def get_redirect_url(self):

@@ -3,11 +3,10 @@
 {% load bootstrap5 %}
 <!-- Log in -->
 <h2 class="row mb-3 d-block">Log In</h2>
-<div class="row">
-    <form class="container needs-validation needs-align" action="" method="post" novalidate>
+<div class="row col-8 col-md-6">
+    <form class="container" action="" method="post" novalidate>
         {% csrf_token %}
         {% bootstrap_form ctx.auth.login_form %}
-
         {% buttons  %}
             <button type="submit" class="btn btn-primary my-2 w-auto text-nowrap" id="btnSave">Log in!</button>
             <a href="{% url 'signup' %}" class="btn btn-secondary my-2 w-auto text-nowrap">Create a new account</a>
