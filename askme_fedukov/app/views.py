@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from django.http import Http404
-from .utils import Feed, Context, Authentication, CheckForm
 from django.shortcuts import redirect
 
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 
-from .forms import ProfileForm, SettingsForm
+from .utils import Feed, Context, Authentication, CheckForm
+from .forms import ProfileForm, SettingsForm, AskForm
 # Context structure
 # "authenticated": True     - Show the own profile in header
 # "MAIN_COL": "8"           - Number of bootstrap col for main block
@@ -83,7 +83,15 @@ def tag(request, name):
 
 @login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
 def ask(request):
-    data = {"MAIN_BORDER": "0"}
+    auth = Authentication(request)
+    data = {"MAIN_BORDER": "0", 
+            "ctx": Context(auth, None, "Ask question"),
+            "form": AskForm(request.POST, request.FILES, author=auth.profile)}
+    
+    new_qustion = CheckForm.check_ask_form(request, data["form"])
+    if new_qustion:
+        return redirect('question', id=new_qustion.id)
+
     return render(request, "ask.html", context=data)
 
 

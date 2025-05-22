@@ -65,19 +65,27 @@
             <div class="m-0 p-0 ms-auto text-end">
               <div class="text-nowrap">Tags:</div>
               <div class="gap-3 align-items-start">
+              {% if card.tags %}
                 {% for tag in card.tags %}
-                  <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
+                <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
                 {% endfor %}
+              {% else %}
+                <span class="text-muted">No tags</span>
+              {% endif %}
               </div>
             </div>
-          </div>
-          {% elif card.type == "main" %}
-          <div class="container d-flex m-0 ps-0 pt-2">
+            </div>
+            {% elif card.type == "main" %}
+            <div class="container d-flex m-0 ps-0 pt-2">
             <div class="text-nowrap me-2">Tags:</div>
             <div>
+              {% if card.tags %}
               {% for tag in card.tags %}
-              <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
+                <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
               {% endfor %}
+              {% else %}
+              <span class="text-muted">No tags</span>
+              {% endif %}
             </div>
           </div>
           {% elif card.type == "answer" %}

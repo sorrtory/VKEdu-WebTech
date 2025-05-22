@@ -362,3 +362,13 @@ class CheckForm:
                 form.save(request.user.profile)
                 return True
         return None
+    
+    @staticmethod
+    def check_ask_form(request: HttpRequest, form):
+        """
+        Checks the ask form and returns True if valid, False otherwise.
+        """
+        if request.method == "POST":
+            if form.is_valid():
+                return form.save()
+        return None

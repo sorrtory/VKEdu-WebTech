@@ -1,6 +1,9 @@
 from django import forms
-from .models import Profile
+from .models import Profile, Question, Answer, Tag
 from django.contrib.auth.models import User
+
+from django.utils.safestring import mark_safe
+import re
 
 class LoginForm(forms.Form):
     """
@@ -41,26 +44,17 @@ class ProfileForm(forms.Form):
         user = Profile.objects.create_user(username=username, email=email, password=password, avatar=avatar)
         return user
 
-from string import Template
-from django.utils.safestring import mark_safe
-from django.forms import ImageField
-import re
-
-class PictureWidget(forms.ClearableFileInput):
+class PictureWidget(forms.FileInput): # Actually can be forms.ClearableFileInput
     def render(self, name, value, attrs=None, renderer=None):
         if not attrs:
             attrs = {}
         input_html = super().render(name, value, attrs, renderer)
-        # Remove the "clear" checkbox and label from the rendered HTML
-        if hasattr(input_html, 'replace'):
-            input_html = input_html.replace('<br>', '').replace('Clear', '').replace('clear', '')
-            # Remove the clear checkbox and its label
-            input_html = re.sub(r'<input[^>]*type="checkbox"[^>]*>.*?(<label[^>]*>.*?</label>)?', '', input_html, flags=re.DOTALL)
         img_src = f"/media/{value}" if value else "/media/avatars/default.png"
         html = f"""
         <div style="display: flex; flex-direction: column; align-items: flex-start;">
             <div style="margin-bottom: 10px;">
-                <img id="preview_{name}" src="{img_src}" alt="Avatar" style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ccc;" />
+                <img id="preview_{name}" src="{img_src}" alt="Avatar" 
+                     style="max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #ccc;" />
             </div>
             {input_html}
         </div>
@@ -119,7 +113,7 @@ class SettingsForm(forms.Form):
         email = self.cleaned_data['email']
         password = self.cleaned_data['password1']
         avatar = self.cleaned_data['avatar']
-        
+
         # Update the user
         user = profile.user
         if username:
@@ -138,3 +132,56 @@ class SettingsForm(forms.Form):
         if avatar:
             profile.avatar = avatar
             profile.save()
+
+class AskForm(forms.ModelForm):
+    """
+    This form is used for asking a question.
+    """
+    def __init__(self, *args, author=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._author = author
+
+    class Meta:
+        model = Question
+        fields = ['title', 'content', 'tags']
+            
+        labels = {
+            'title': 'Title',
+            'content': 'Content',
+            'tags': 'Tags',
+        }
+        help_texts = {
+            'title': 'Enter the title of your question.',
+            'content': 'Enter the content of your question.',
+            'tags': 'Select tags related to your question.',
+        }
+        widgets = {
+            'title': forms.TextInput(attrs={'required': False, 'placeholder': 'Enter your question title'}),
+            'content': forms.Textarea(attrs={'required': False, 'placeholder': 'Describe your question in detail'}),
+        }
+    
+    # Optionally, customize the widget for better UX
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label='Tags',
+        help_text='Select tags related to your question.',
+    )
+
+    def save(self, commit=True):
+        """
+        Save the question to the database.
+        """
+        question = super().save(commit=False)
+        question.author = self._author
+        
+        if commit:
+            question.save()
+            question.tags.set(self.cleaned_data['tags'])
+            self.save_m2m()
+        
+        return question
+
+
+        
