@@ -6,16 +6,28 @@
 <hr>
 <section class="d-flex flex-column gap-2 mb-3">
     {% for card in ctx.feed.current_page %}
-        {% include 'card.html' %}
+    {% include 'card.html' %}
     {% endfor %}
 </section>
 {% include 'pagination.html'%}
 <hr>
 <section class="container">
-    <form action="" class="pb-3">
-        <textarea class="w-100 mb-3" name="" id="" rows="6" placeholder="Enter your answer here."></textarea>
-        <button type="submit" class="btn-dark col-4 col-sm-3 col-md-2">Answer</button>
+    {% if ctx.auth.authenticated %}
+    <form action="" method="post" class="pb-3" id="answer_form">
+        {% csrf_token %}
+        {{ answer_form.content }}
+        {% if answer_form.content.errors %}
+            <div class="text-danger small">{{ answer_form.content.errors.0 }}</div>
+        {% endif %}
+        <button type="submit" class="mt-1 btn-dark col-4 col-sm-3 col-md-2">Answer</button>
     </form>
+    {% else %}
+    <form class="pb-3" action="/login" method="get" id="answer_form">
+        <input type="hidden" name="continue" value="{{ request_path }}#answer_form" /> 
+        {{ answer_form.content }}
+        <button type="submit" class="mt-1 btn-dark col-4 col-sm-3 col-md-2">Answer</button>
+    </form>
+    {% endif %}
 </section>
 
 {% endblock %}

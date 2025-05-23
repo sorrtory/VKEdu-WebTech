@@ -45,6 +45,9 @@ class ProfileForm(forms.Form):
         return user
 
 class PictureWidget(forms.FileInput): # Actually can be forms.ClearableFileInput
+    """
+    Custom widget for displaying an image preview and file input.
+    """
     def render(self, name, value, attrs=None, renderer=None):
         if not attrs:
             attrs = {}
@@ -184,4 +187,39 @@ class AskForm(forms.ModelForm):
         return question
 
 
+class AnswerForm(forms.ModelForm):
+    """
+    This form allows user to create an answer to the question.
+    """
+    
+    class Meta:
+        model = Answer
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'required': True, 
+                                             'placeholder': 'Enter your answer here',
+                                             "rows": 5,
+                                             "cols": 40,
+                                             "style": "width: 100%;",
+                                             "class": "form-control",
+                                             "help_text": "Enter your answer to the question.",
+                                             }, ),
+        }
+       
+    def __init__(self, *args, author=None, question_id=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._author = author
+        self._question_id = question_id
+
+    def save(self, commit=True):
+        """
+        Save the answer to the database.
+        """
+        answer = super().save(commit=False)
+        answer.author = self._author
+        answer.question = Question.objects.get(id=self._question_id)
         
+        if commit:
+            answer.save()
+        
+        return answer

@@ -79,7 +79,7 @@ class CardAnswer(CardBase):
 
 class BadgeTag():
     """
-    This is a class for tags.
+    This is a class for Tag's element frontend.
     """
 
     def __init__(self, name: str, type: int = 0):
@@ -94,6 +94,8 @@ class BadgeTag():
 class Feed():
     """
     This is a class for pagination of the cards.
+
+    It is used in views to create pages of cards.
     """
 
     def __init__(self, pages=None):
@@ -106,6 +108,8 @@ class Feed():
             pages.count (int): The total number of items in the paginator.
             current_page (Page): The current page object, initialized to the first page of the Paginator.
             current_page.number (int): The current page number, initialized to 1.
+
+            profile (Profile): The Profile object of the user who created feed, sets with get_profile().
         """
         if pages is not None:
             self.pages = pages
@@ -147,6 +151,21 @@ class Feed():
             for question in questions
         ]
         return cls(Paginator(cards, cards_per_page)).on_page(page_number)
+
+    @classmethod
+    def get_answer_page_number_by_id(cls, id, cards_per_page: int = 3):
+        """
+        Returns the page number of the answer by id.
+        """
+        try:
+            answer = Answer.objects.get(id=id)
+            question = answer.question
+            page_number = (question.answers.count() - 1) // cards_per_page + 1
+            return page_number
+        except Answer.DoesNotExist:
+            return None
+        except Question.DoesNotExist:
+            return None
 
     @classmethod
     def get_answers(cls, id, page_number: int, cards_per_page: int = 3):
@@ -251,8 +270,19 @@ class Feed():
 class Authentication:
     """
     This is a class for user session
+
+    It is used in templates to render data related to authentication.
     """
+
     def __init__(self, request: HttpRequest):
+        """
+        Retrieves the user profile and login form from the request.
+
+        Attributes:
+            authenticated (bool): Indicates if the user is authenticated.
+            profile (Profile): The Profile object of the user.
+            login_form (LoginForm): The LoginForm object for user login.
+        """
         if request is None:
             raise ValueError("Request cannot be None")
         
@@ -263,12 +293,13 @@ class Authentication:
         if auth.get_user(request).is_authenticated:
             self.authenticated = True
             self.profile = Profile.objects.get(user=auth.get_user(request))
-        else:
-            self.login_form = LoginForm(request.POST)
-            user = CheckForm.check_login_form(request, self.login_form)
-            if user is not None:
-                self.profile = Profile.objects.get(user=user)
-                self.authenticated = True
+
+    def set_login_form(self, request: HttpRequest):
+        self.login_form = LoginForm(request.POST)
+        user = CheckForm.check_login_form(request, self.login_form)
+        if user is not None:
+            self.profile = Profile.objects.get(user=user)
+            self.authenticated = True
         
     def logout(self, request: HttpRequest):
         """
@@ -281,9 +312,21 @@ class Authentication:
 class Context:
     """
     This is a class for the context of the page.
+
+    It will be used in templates to render basic data.
     """
 
     def __init__(self, auth: Authentication, feed: Feed, title: str):
+        """
+        Initializes the class with authentication, feed, and title information.
+        Attributes:
+            auth (Authentication): Stores the authentication object.
+            feed (Feed): Stores the feed object containing cards.
+            title (str): Stores the title.
+            hot_tags (list): List of hot tags, for aside block.
+            best_members (list): List of best members, for aside block.
+        """
+
         self.auth = auth
         self.feed = feed
         self.title = title
@@ -307,6 +350,8 @@ class Context:
 class CheckForm:
     """
     This is a class for checking forms.
+
+    It is used in views to check if the form is valid and to process it.
     """
 
     @staticmethod
@@ -371,4 +416,16 @@ class CheckForm:
         if request.method == "POST":
             if form.is_valid():
                 return form.save()
+        return None
+    
+    @staticmethod
+    def check_answer_form(request: HttpRequest, form):
+        """
+        Checks the answer form and returns True if valid, False otherwise.
+        """
+        if request.method == "POST":
+            if form.is_valid():
+                return form.save()
+        elif request.method == "GET":
+            form.fields['content'].initial = request.GET.get('content', '')
         return None
