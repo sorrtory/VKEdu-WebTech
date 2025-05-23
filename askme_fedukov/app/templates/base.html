@@ -47,23 +47,19 @@
       </div>
       {% if ctx.auth.authenticated %}
       <!-- Authenticated -->
-      <div class="ms-auto ps-2 d-flex align-items-center">
-        <div style="width: 80px; height: auto;">
+      <div class="ms-auto ps-sm-2 d-flex align-items-center col-sm-3">
+        <div class="d-none d-sm-block me-1 me-md-3" style="width: 80px; height: auto;">
           <img src="{{ ctx.auth.profile.avatar.url }}" class="img-fluid img-thumbnail rounded-circle"
             alt="Profile picture">
         </div>
-        <div class="container">
-          <div class="row h5 m-0 p-0 mb-1">
-            <a class="m-0 p-0 text-decoration-none text-dark" href="{% url 'profile' 0 %}">{{ ctx.auth.profile.user.username }}</a>
-          </div>
-          <div class="row m-0 p-0 ">
-            <div class="col m-0 p-0 d-flex">
-              <a class="ms-0 ps-0 me-2 col-md" href="{% url 'settings' %}">settings</a>
-              <a class="col-md" href="#" onclick="document.getElementById('logout-form').submit()">log out</a>
-              <form id="logout-form" action="{% url 'signout' %}?continue={{ request.path }}" method="post" style="display: none;">
-                {% csrf_token %}
-              </form>
-            </div>
+        <div class="d-flex flex-column justify-content-center p-0 m-0  align-items-center" style="min-width:0;">
+          <a class="fw-bold text-dark text-decoration-none p-0 m-0" href="{% url 'profile' 0 %}" style="font-size:1.5rem;white-space:nowrap;">{{ ctx.auth.profile.user.username }}</a>
+          <div class="d-flex gap-1 p-0 m-0 flex-wrap justify-content-center" style="font-size:0.95rem;">
+            <a class="p-0 m-0" href="{% url 'settings' %}">settings</a>
+            <a class="p-0 m-0" href="#" onclick="document.getElementById('logout-form').submit()">log out</a>
+            <form id="logout-form" action="{% url 'signout' %}?continue={{ request.path }}" method="post" style="display:none;">
+              {% csrf_token %}
+            </form>
           </div>
         </div>
       </div>

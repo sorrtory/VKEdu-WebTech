@@ -3,7 +3,7 @@
   <div class="">
     <div class="card-body container">
       <div class="row mb-1">
-        <div class="col-{{ card.AVATAR_SIZE|default:'2' }}">
+        <div class="col-5 col-sm-4 mb-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} mb-sm-1">
           <img src="{{ card.author.avatar.url }}" class="img-fluid img-thumbnail border-2" alt="Asker avatar" />
         </div>
         <div class="col">
@@ -13,24 +13,33 @@
               {{ card.header }}
             </h5>
             {% elif card.type == "main" %}
-            <h2 class="card-title">
+            <h2 class="h2 d-none d-md-block">
+              {{ card.header }}
+            </h2>
+            <h2 class="h3 d-none d-sm-block d-md-none">
+              {{ card.header }}
+            </h2>
+            <h2 class="h5 d-block d-sm-none">
               {{ card.header }}
             </h2>
             {% endif %}
           </a>
-          <p class="card-text">
+          {% if card.type == "answer" %}
+          <p class="card-text text-wrap">
             {{ card.text }}
           </p>
+          {% endif %}
         </div>
       </div>
 
       <!-- TODO Add authentication and likes -->
-      <div class="row">
-        <div class="col-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
-          {% load bootstrap_icons %}
-          {% if card.type == "main" %}
+      <div class="row flex-nowrap">
+        {% load bootstrap_icons %}
+        {% if card.type == "main" %}
+        <div class="col-2 col-sm-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
           <!-- Large buttons -->
-          <div class="d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap flex-sm-nowrap">
+          <div
+            class="col-1 d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap flex-sm-nowrap">
             <button class="border-0 bg-body p-0">
               {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.75em' %}
             </button>
@@ -39,61 +48,83 @@
               {% bs_icon 'dash-circle' size='1.75em' %}
             </button>
           </div>
-
-          {% else %}
-          <!-- Usual buttons -->
+        </div>
+        {% elif card.type == "answer" %}
+        <div class="col-5 col-sm-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
           <div
-            class="d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap px-3 px-md-0 flex-md-nowrap">
+            class="d-flex gap-2 justify-content-center align-items-center align-self-end">
             <button class="border-0 bg-body p-0">
-              {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.5em' %}
+              {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.6em' %}
             </button>
             <span class="text-center h5 m-0 p-0 my-auto pb-1">{{ card.likes }}</span>
             <button class="border-0 bg-body p-0">
-              {% bs_icon 'dash-circle' size='1.5em' %}
+              {% bs_icon 'dash-circle' size='1.6em' %}
             </button>
           </div>
-          {% endif %}
         </div>
+        {% elif card.type == "explore" %}
+          <div class="col-2 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
+            <!-- Usual buttons -->
+            <div
+              class="d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap px-3 px-md-0 flex-md-nowrap">
+              <button class="border-0 bg-body p-0">
+                {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.5em' %}
+              </button>
+              <span class="text-center h5 m-0 p-0 my-auto pb-1">{{ card.likes }}</span>
+              <button class="border-0 bg-body p-0">
+                {% bs_icon 'dash-circle' size='1.5em' %}
+              </button>
+            </div>
+          </div>
 
+        {% endif %}
+        {% if card.type != "answer" %}
         <div class="col">
-          {% if card.type == "explore" %}
-          <div class="container-fluid p-0 m-0 d-flex bg-body">
-            <a href="{% url 'question' card.id %}" class="align-self-end flex-nowrap text-nowrap me-2">
-              answer
-              (<span class="d-inline-block">{{ card.answers_count }}</span>)
-            </a>
-            <div class="m-0 p-0 ms-auto text-end">
-              <div class="text-nowrap">Tags:</div>
-              <div class="gap-3 align-items-start">
-              {% if card.tags %}
-                {% for tag in card.tags %}
-                <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
-                {% endfor %}
-              {% else %}
-                <span class="text-muted">No tags</span>
-              {% endif %}
-              </div>
-            </div>
-            </div>
-            {% elif card.type == "main" %}
-            <div class="container d-flex m-0 ps-0 pt-2">
-            <div class="text-nowrap me-2">Tags:</div>
-            <div>
+          <p class="card-text text-wrap">
+            {{ card.text }}
+          </p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="col">
+        {% if card.type == "explore" %}
+        <div class="container-fluid p-0 m-0 d-flex bg-body">
+          <a href="{% url 'question' card.id %}" class="align-self-end flex-nowrap text-nowrap me-2">
+            answer
+            (<span class="d-inline-block">{{ card.answers_count }}</span>)
+          </a>
+          <div class="m-0 p-0 ms-auto text-end">
+            <div class="text-nowrap">Tags:</div>
+            <div class="gap-3 align-items-start">
               {% if card.tags %}
               {% for tag in card.tags %}
-                <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
+              <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
               {% endfor %}
               {% else %}
               <span class="text-muted">No tags</span>
               {% endif %}
             </div>
           </div>
-          {% elif card.type == "answer" %}
-          <input type="checkbox" class="btn-check" id="btn-check-outlined" autocomplete="off">
-          <label class="btn btn-outline-primary mt-2" for="btn-check-outlined">Correct!</label><br>
-          {% else %}
-          {% endif %}
         </div>
+        {% elif card.type == "main" %}
+        <div class="container d-flex m-0 ps-0 pt-2">
+          <div class="text-nowrap me-2">Tags:</div>
+          <div class="">
+            {% if card.tags %}
+            {% for tag in card.tags %}
+            <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
+            {% endfor %}
+            {% else %}
+            <span class="text-muted text-nowrap">No tags</span>
+            {% endif %}
+          </div>
+        </div>
+        {% elif card.type == "answer" %}
+        <input type="checkbox" class="btn-check" id="btn-check-outlined" autocomplete="off">
+        <label class="btn btn-outline-primary mt-2" for="btn-check-outlined">Correct!</label><br>
+        {% else %}
+        {% endif %}
       </div>
     </div>
 
