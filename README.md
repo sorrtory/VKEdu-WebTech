@@ -41,7 +41,7 @@ Or you can try to build it on your own
     pip install -r requirements.txt
     ```
 
-5. Start the db
+5. Set up the database
 
     ```sh
     docker compose up -d --build 'db'
@@ -97,3 +97,8 @@ Or you can try to build it on your own
     - Tags: `ratio`
     - User ratings: `ratio * 200`
 4. Forms
+    - Login
+    - Register
+    - Profile settings
+    - New question
+    - New answer
