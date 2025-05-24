@@ -83,7 +83,10 @@ Or you can try to build it on your own
     # Before filling, you\'re likely to migrate with
     # python manage.py remigrate
     # Which cleans up db -> makemigrations -> migrate
+    
     python manage.py fill_db [ratio]
+    # To remove all data use this
+    python manage.py flush
     ```
 
     Where `ratio` is the fill factor for entities. After executing the command, the database should be populated with the following:

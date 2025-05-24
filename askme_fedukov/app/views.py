@@ -15,11 +15,16 @@ from .utils.form_checker import (CheckSettingsForm, CheckAnswerForm,
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
 
 
-# Context structure
-# "MAIN_COL": "8"           - Number of bootstrap col for main html block
-#                           - (up to 9, 3 is already for tags and members aside)
-# "MAIN_BORDER": "0"        - Number of bootstrap border for main html block
-# "ctx": Context()          - Context class for the page
+# Layout controls for templates
+# "MAIN_COL": "8"              - Number of bootstrap col for main html block
+#                              - (must be <= 9, another 3 is taken by sidebar)
+# "MAIN_BORDER": "0"           - Number of bootstrap border for main html block
+
+# Context controls for templates
+# "ctx": Context()             - contains page data such as auth, feed, title, etc.
+#                              - "ctx" can be expanded in view handlers
+# "..._form": ..._Form()       - contains form data, such as login, ask, settings, etc.
+# "request_path": request.path - contains current request path, used for form actions
 
 
 def index(request):

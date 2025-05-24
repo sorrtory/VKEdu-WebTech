@@ -163,8 +163,8 @@ class CheckAuthForm(CouldContinueForm):
         """
         def handle_func():
             if self.check():
-                user = auth.authenticate(
-                    self.request, **self.form.cleaned_data)
+                user = auth.authenticate(self.request, 
+                                         **self.form.cleaned_data)
                 if user is not None:
                     auth.login(self.request, user)
                 else:

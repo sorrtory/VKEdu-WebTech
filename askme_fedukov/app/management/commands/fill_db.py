@@ -39,15 +39,15 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Successfully filled the database with test data'))
 
     def create_test_user(self):
-        test_user, created = User.objects.get_or_create(
+        test_user, _ = User.objects.get_or_create(
             username='testuser',
             defaults={'email': 'testuser@example.com'}
         )
-        if created:
-            test_user.set_password('testpassword')
-            test_user.save()
-            # Create a test profile for the test user
-            Profile.objects.create(user=test_user)
+        test_user.set_password('testpassword')
+        test_user.save()
+
+        # Create a test profile for the test user
+        Profile.objects.get_or_create(user=test_user)
 
     def create_users(self, ratio):
         for _ in range(ratio):
