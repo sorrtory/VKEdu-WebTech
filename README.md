@@ -41,7 +41,7 @@ Or you can try to build it on your own
     pip install -r requirements.txt
     ```
 
-5. Start the db
+5. Set up the database
 
     ```sh
     docker compose up -d --build 'db'
@@ -68,20 +68,25 @@ Or you can try to build it on your own
     | Index page                        | <http://127.0.0.1:8000/>              | список новых вопросов (главная страница)  |
     | Hot questions page                | <http://127.0.0.1:8000/hot/>          | список “лучших” вопросов                  |
     | Tag page                          | <http://127.0.0.1:8000/tag/blablabla/> | список вопросов по тэгу                   |
-    | Question page                     | <http://127.0.0.1:8000/question/35/>  | страница одного вопроса со списком ответов |
+    | Question page                     | <http://127.0.0.1:8000/question/5/>   | страница одного вопроса со списком ответов |
     | Ask page                          | <http://127.0.0.1:8000/ask/>          | форма создания вопроса                   |
-    | Login page                        | <http://127.0.0.1:8000/login/>        | форма логина                              |
+    | Login page                        | <http://127.0.0.1:8000/login/>        | форм логина                              |
     | Register page                     | <http://127.0.0.1:8000/signup/>       | форма регистрации                        |
     | Settings page                     | <http://127.0.0.1:8000/settings/>     | настройки                                |
+    | Profile page                     | <http://127.0.0.1:8000/profile/0>      | публичная страница пользователя                                |
 
 3. Database:
 
     **Fill with test data**
 
     ```sh
-    # Clean up db -> makemigrations -> migrate
+    # Before filling, you\'re likely to migrate with
     # python manage.py remigrate
+    # Which cleans up db -> makemigrations -> migrate
+    
     python manage.py fill_db [ratio]
+    # To remove all data use this
+    python manage.py flush
     ```
 
     Where `ratio` is the fill factor for entities. After executing the command, the database should be populated with the following:
@@ -91,4 +96,9 @@ Or you can try to build it on your own
     - Answers: `ratio * 100`
     - Tags: `ratio`
     - User ratings: `ratio * 200`
-4. Waiting for the new task...
+4. Forms
+    - Login
+    - Register
+    - Profile settings
+    - New question
+    - New answer

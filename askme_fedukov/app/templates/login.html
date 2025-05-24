@@ -1,70 +1,16 @@
 {% extends 'base.html' %}
-
 {% block content %}
+{% load bootstrap5 %}
 <!-- Log in -->
 <h2 class="row mb-3 d-block">Log In</h2>
-<p class="text-danger">Sorry, wrong password!</p>
-<div class="row">
-    <form class="container needs-validation needs-align" novalidate>
-        <div class="row mb-3">
-            <label for="inputLogin" class="label-align col-form-label">Login</label>
-            <div class="input-align">
-                <input type="text" class="form-control" id="inputLogin">
-                <div class="valid-feedback">
-                    Looks good!
-                </div>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <label for="inputPassword" class="label-align col-form-label">Password</label>
-            <div class="input-align">
-                <input type="password" class="form-control" id="inputPassword" required>
-                <div class="input-group has-validation">
-                    <div class="invalid-feedback">
-                        Wrong password
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <label for="btnSaveContainer" class="label-align col-form-label"></label>
-            <div class="col-4 col-md-2" id="btnSaveContainer">
-                <button type="submit" class="btn btn-primary my-2 w-auto text-nowrap" id="btnSave">Log in!</button>
-            </div>
-        </div>
-        <div class="row">
-            <label for="reglink" class="label-align col-form-label"></label>
-            <div class="col-4 col-md-2 w-auto" id="reglink">
-                <a href="{% url 'signup' %}">Create a new account</a>
-            </div>
-        </div>
+<div class="row col-8 col-md-6">
+    <form class="container" action="" method="post" novalidate>
+        {% csrf_token %}
+        {% bootstrap_form ctx.auth.login_form %}
+        {% buttons  %}
+            <button type="submit" class="btn btn-primary my-2 w-auto text-nowrap" id="btnSave">Log in!</button>
+            <a href="{% url 'signup' %}" class="btn btn-secondary my-2 w-auto text-nowrap">Create a new account</a>
+        {% endbuttons %}
     </form>
 </div>
-
-
-
-<script>
-    // Example starter JavaScript for disabling form submissions if there are invalid fields
-    (function () {
-        'use strict'
-
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.querySelectorAll('.needs-validation')
-
-        // Loop over them and prevent submission
-        Array.prototype.slice.call(forms)
-            .forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-
-                    form.classList.add('was-validated')
-                }, false)
-            })
-    })()
-</script>
-{% load static %}
-<script type="text/javascript" src="{% static 'alignForm.js' %}"></script>
 {% endblock %}

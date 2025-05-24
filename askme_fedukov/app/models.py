@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 class ProfileManager(models.Manager):
     """
@@ -22,7 +23,31 @@ class ProfileManager(models.Manager):
         """
         return self.get_queryset().get(user__username='testuser')
 
-class Profile(models.Model):
+    def create_user(self, username, email, password, avatar=None):
+        """
+        Creates a new profile.
+        """
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={'email': email}
+        )
+        if created:
+            user.set_password(password)
+            user.save()
+            if avatar:
+                profile, created = self.get_or_create(user=user, defaults={'avatar': avatar})
+            else:
+                profile, created = self.get_or_create(user=user)
+            if not created:
+                return None
+            return profile
+        return None
+    
+
+def user_avatar_path(instance, filename):
+    return f'avatars/user_{instance.user.id}/{filename}'
+
+class Profile(models.Model):  # Can also derive from AbstractBaseUser
     """
     This model represents a user profile.
     Based on Django's User model.
@@ -33,11 +58,20 @@ class Profile(models.Model):
     # answers from Answer model
     # answer_likes from Answer model
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='avatars/',
+    avatar = models.ImageField(upload_to=user_avatar_path,
                                default='avatars/default.png')
 
     def __str__(self):
         return self.user.username
+    
+    @property
+    def tags(self):
+        """
+        Returns a queryset of all unique tags used by this user in questions and answers.
+        """
+        question_tags = Tag.objects.filter(questions__author=self)
+        answer_tags = Tag.objects.filter(answers__author=self)
+        return Tag.objects.filter(Q(id__in=question_tags) | Q(id__in=answer_tags)).distinct()
 
 
 class Card(models.Model):
@@ -154,6 +188,9 @@ class Answer(Card):
                                    through='AnswerLike', blank=True, related_name='answer_likes')
     question = models.ForeignKey(Question,
                                  related_name='answers', on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.content
 
 
 class TagManager(models.Manager):
