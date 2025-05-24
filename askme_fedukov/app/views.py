@@ -6,10 +6,14 @@ from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 
-from .utils import Feed, Context, Authentication, CheckSettingsForm, CheckAnswerForm, CheckAskForm, CheckRegistrationForm
+from .utils.context import Context
+from .utils.authentication import Authentication
+from .utils.feed import PaginatedFeed, ProfileFeed
+from .utils.form_checker import (CheckSettingsForm, CheckAnswerForm,
+                                 CheckAskForm, CheckRegistrationForm)
+
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
 
-from urllib.parse import urlencode, urlparse, parse_qs, urlunparse
 
 # Context structure
 # "MAIN_COL": "8"           - Number of bootstrap col for main html block
@@ -25,7 +29,7 @@ def index(request):
 
     # Create pages of new questions
     page_number = request.GET.get('page', 1)
-    feed = Feed.get_explore(page_number)
+    feed = PaginatedFeed.get_explore(page_number)
 
     # Check if user is authenticated
     auth = Authentication(request)
@@ -43,7 +47,7 @@ def hot(request):
 
     # Create pages of hot questions
     page_number = request.GET.get('page', 1)
-    feed = Feed.get_hot(page_number)
+    feed = PaginatedFeed.get_hot(page_number)
 
     # Check if user is authenticated
     auth = Authentication(request)
@@ -61,7 +65,7 @@ def question(request, id):
     """
 
     # Get question by id
-    main = Feed.get_question(id)
+    main = PaginatedFeed.get_question(id)
     if main is None:
         raise Http404("Question not found")
 
@@ -83,8 +87,8 @@ def question(request, id):
 
     # Create pages of answers to the question
     page_number = request.GET.get('page', 1)
-    answers = Feed.get_answers(id, page_number)
-    
+    answers = PaginatedFeed.get_answers(id, page_number)
+
     # Create context for the page
     data = {
         "ctx": Context(auth, answers, title=main.header),
@@ -103,7 +107,7 @@ def tag(request, name):
 
     # Create pages of questions by tag
     page_number = request.GET.get('page', 1)
-    feed = Feed.get_questions_by_tag(name, page_number)
+    feed = PaginatedFeed.get_questions_by_tag(name, page_number)
 
     # Check if user is authenticated
     auth = Authentication(request)
@@ -127,7 +131,7 @@ def ask(request):
     # Create form for asking a question
     form = AskForm(request.POST or None, author=auth.profile)
     form_checker = CheckAskForm(request, form)
-    
+
     # Redirect if it is a successful POST request
     new_qustion = form_checker.retrieve()
     if new_qustion is not None:
@@ -154,7 +158,7 @@ def login(request):
     continue_url = auth.setup_login_form(request)
     if continue_url is not None:
         return redirect(continue_url)
-    
+
     # Create context for the page
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
             "ctx": Context(auth, None, "Login")}
@@ -197,9 +201,10 @@ def settings(request):
     auth = Authentication(request)
 
     # Create form for user settings
-    form = SettingsForm(request.POST or None, request.FILES or None, profile=auth.profile)
+    form = SettingsForm(request.POST or None,
+                        request.FILES or None, profile=auth.profile)
     form_checker = CheckSettingsForm(request, form)
-    
+
     # Redirect if it is a successful POST request
     new_user = form_checker.retrieve()
     if new_user is not None:
@@ -209,7 +214,7 @@ def settings(request):
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
             "ctx": Context(auth, None, "My profile"),
             "form": form}
-    
+
     return render(request, "settings.html", context=data)
 
 
@@ -226,8 +231,8 @@ def profile(request, id):
         title = "My profile"
 
     # Get profile by id
-    feed = Feed()
-    if feed.get_profile(id) is None:
+    feed = ProfileFeed(id)
+    if feed.profile is None:
         raise Http404("Profile not found")
 
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",

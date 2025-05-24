@@ -11,11 +11,15 @@
                 style="width: 120px; height: 120px; object-fit: cover;">
         </div>
         <div class="col-12 col-md-8 text-center text-md-start">
-            <h4 class="mb-1">{{ ctx.feed.profile.user.username }}</h4>
-            <p class="mb-1 text-muted">{{ ctx.feed.profile.user.email }}</p>
-            {% if ctx.feed.profile.nickname %}
-            <p class="mb-1">Nickname: <span class="fw-semibold">{{ ctx.feed.profile.nickname }}</span></p>
-            {% endif %}
+            <div class="d-flex align-items-center mb-2">
+                <h4 class="mb-1">{{ ctx.feed.profile.username }}</h4>
+                {% if ctx.feed.profile.nickname %}
+                <p class="mb-1 text-muted ms-1">
+                    (<span class="fw-semibold">{{ ctx.feed.profile.nickname }}</span>)
+                </p>
+                {% endif %}
+            </div>
+            <p class="mb-1 text-muted">{{ ctx.feed.profile.email }}</p>
             {% if ctx.feed.profile.id == ctx.auth.profile.id %}
                 <div class="row mt-1">
                     <div class="col-12">
@@ -29,10 +33,10 @@
     <div class="row mb-2">
         <div class="col-12">
             <h5 class="mb-2">Tags used:</h5>
-            {% if ctx.feed.profile.tags.all %}
+            {% if ctx.feed.profile.tags %}
             <div>
-                {% for tag in ctx.feed.profile.tags.all %}
-                <span class="badge bg-primary me-1">{{ tag.name }}</span>
+                {% for tag in ctx.feed.profile.tags %}
+                <span class="badge bg-{{ tag.bs_type }} me-1">{{ tag.name }}</span>
                 {% empty %}
                 <span class="text-muted">No tags yet.</span>
                 {% endfor %}
@@ -42,20 +46,78 @@
             {% endif %}
         </div>
     </div>
+    <!-- Likes statistics section -->
+    <div class="row mb-2">
+        <div class="col-12">
+            <h5 class="mb-2">Likes statistics:</h5>
+            <ul class="list-group mb-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Total likes
+                    <span class="badge bg-primary rounded-pill">
+                        {{ ctx.feed.profile.likes.count|default:"0" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Liked questions
+                    <span class="badge bg-success rounded-pill">
+                        {{ ctx.feed.profile.liked_questions.count|default:"0" }}
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Liked answers
+                    <span class="badge bg-info rounded-pill">
+                        {{ ctx.feed.profile.liked_answers.count|default:"0" }}
+                    </span>
+                </li>
+            </ul>
+            <!-- Liked Questions List -->
+            <h6>Questions you liked:</h6>
+            {% if ctx.feed.profile.liked_questions.all %}
+            <div style="max-height: 150px; overflow-y: auto;">
+                <ul class="list-group mb-2">
+                    {% for question in ctx.feed.profile.liked_questions.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'question' question.id %}">{{ question.title }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+            <span class="text-muted">No liked questions.</span>
+            {% endif %}
+            <!-- Liked Answers List -->
+            <h6>Answers you liked:</h6>
+            {% if ctx.feed.profile.liked_answers.all %}
+            <div style="max-height: 150px; overflow-y: auto;">
+                <ul class="list-group">
+                    {% for answer in ctx.feed.profile.liked_answers.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'question' answer.question.id %}#answer-{{ answer.id }}">
+                            {{ answer.content|truncatewords:5 }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+            <span class="text-muted">No liked answers.</span>
+            {% endif %}
+        </div>
+    </div>
     <div class="row mb-2">
         <div class="col-12">
             <h5 class="mb-2">Questions asked:</h5>
             {% if ctx.feed.profile.questions.all %}
-            <ul class="list-group">
-                {% for question in ctx.feed.profile.questions.all %}
-                <li class="list-group-item">
-                    <a href="{% url 'question' question.id %}">{{ question.title }}</a>
-                    <span class="float-end text-muted">({{ question.created_at|date:"d M Y" }})</span>
-                </li>
-                {% empty %}
-                <li class="list-group-item text-muted">No questions asked yet.</li>
-                {% endfor %}
-            </ul>
+            <div style="max-height: 200px; overflow-y: auto;">
+                <ul class="list-group">
+                    {% for question in ctx.feed.profile.questions.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'question' question.id %}">{{ question.title }}</a>
+                        <span class="float-end text-muted">({{ question.created_at|date:"d M Y" }})</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% else %}
             <span class="text-muted">No questions asked yet.</span>
             {% endif %}
@@ -66,18 +128,18 @@
         <div class="col-12">
             <h5 class="mb-2">Answers given:</h5>
             {% if ctx.feed.profile.answers.all %}
-            <ul class="list-group">
-                {% for answer in ctx.feed.profile.answers.all %}
-                <li class="list-group-item">
-                    <a href="{% url 'question' answer.question.id %}#answer-{{ answer.id }}">
-                        {{ answer.content|truncatewords:5 }}
-                    </a>
-                    <span class="float-end text-muted"> ({{ answer.created_at|date:"d M Y" }})</span>
-                </li>
-                {% empty %}
-                <li class="list-group-item text-muted">No answers given yet.</li>
-                {% endfor %}
-            </ul>
+            <div style="max-height: 400px; overflow-y: auto;">
+                <ul class="list-group">
+                    {% for answer in ctx.feed.profile.answers.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'question' answer.question.id %}#answer-{{ answer.id }}">
+                            {{ answer.content|truncatewords:5 }}
+                        </a>
+                        <span class="float-end text-muted"> ({{ answer.created_at|date:"d M Y" }})</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% else %}
             <span class="text-muted">No answers given yet.</span>
             {% endif %}

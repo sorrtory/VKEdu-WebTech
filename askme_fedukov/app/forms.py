@@ -3,7 +3,6 @@ from .models import Profile, Question, Answer, Tag
 from django.contrib.auth.models import User
 
 from django.utils.safestring import mark_safe
-import re
 
 class LoginForm(forms.Form):
     """
