@@ -1,11 +1,14 @@
 from django.core.paginator import Paginator
+from django.urls import reverse_lazy
 
 from .forms import LoginForm
 from .models import Question, Answer, Profile, Tag
 from django.db.models import Count
 from django.http import HttpRequest
 from django.contrib import auth
-
+from urllib.parse import urlencode
+from django.shortcuts import redirect
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 
 LOREM = '''Lorem Ipsum is simply dummy text of the printing and typesetting
 industry. Lorem Ipsum has been the industry's standard dummy text ever since 
@@ -77,6 +80,7 @@ class CardAnswer(CardBase):
                  text: str = None, tags: list = None, likes: int = 0):
         super().__init__("answer", id, author, text=text, tags=tags, likes=likes)
 
+
 class BadgeTag():
     """
     This is a class for Tag's element frontend.
@@ -86,10 +90,12 @@ class BadgeTag():
         self.name = name
         self.count = 0
         self.type = type
-        self.bs_type = Tag.TAG_CHOICES[type][1] if type < len(Tag.TAG_CHOICES) else "primary"
+        self.bs_type = Tag.TAG_CHOICES[type][1] if type < len(
+            Tag.TAG_CHOICES) else "primary"
 
     def __str__(self):
         return self.name
+
 
 class Feed():
     """
@@ -114,7 +120,7 @@ class Feed():
         if pages is not None:
             self.pages = pages
             self.current_page = pages.page(1)
-        
+
         self.profile = None
 
     def turn_page_to(self, page_number):
@@ -129,7 +135,7 @@ class Feed():
         """
         self.turn_page_to(page_number)
         return self
-    
+
     @classmethod
     def get_explore(cls, page_number: int, cards_per_page: int = 3):
         """
@@ -246,7 +252,7 @@ class Feed():
             for question in questions
         ]
         return cls(Paginator(cards, cards_per_page)).on_page(page_number)
-    
+
     def get_profile(self, id):
         """
         Returns a Profile object by id.
@@ -266,7 +272,8 @@ class Feed():
             return data
         except Profile.DoesNotExist:
             return None
-    
+
+
 class Authentication:
     """
     This is a class for user session
@@ -285,7 +292,7 @@ class Authentication:
         """
         if request is None:
             raise ValueError("Request cannot be None")
-        
+
         self.authenticated = False
         self.profile = None
         self.login_form = None
@@ -294,13 +301,18 @@ class Authentication:
             self.authenticated = True
             self.profile = Profile.objects.get(user=auth.get_user(request))
 
-    def set_login_form(self, request: HttpRequest):
-        self.login_form = LoginForm(request.POST)
-        user = CheckForm.check_login_form(request, self.login_form)
+    def setup_login_form(self, request: HttpRequest):
+        self.login_form = LoginForm(request.POST or None)
+        login_form_checker = CheckAuthForm(request, self.login_form)
+
+        # Check if the form is valid and authenticate the user
+        user = login_form_checker.retrieve()
         if user is not None:
             self.profile = Profile.objects.get(user=user)
             self.authenticated = True
-        
+            return login_form_checker.redirect()
+        return None
+
     def logout(self, request: HttpRequest):
         """
         Logs out the user.
@@ -308,6 +320,7 @@ class Authentication:
         auth.logout(request)
         self.authenticated = False
         self.profile = None
+
 
 class Context:
     """
@@ -338,7 +351,7 @@ class Context:
         Returns a list of hot tags.
         """
         return [BadgeTag(tag.name, tag.type) for tag in Tag.objects.get_hot_tags() if tag.name != "hot"]
-    
+
     def get_best_members(self):
         """
         Returns a list of best members.
@@ -346,86 +359,221 @@ class Context:
         return Profile.objects.get_best_members()
 
 
-
-class CheckForm:
+class BaseCheckForm:
     """
-    This is a class for checking forms.
+    This is a base class for checking forms.
 
     It is used in views to check if the form is valid and to process it.
     """
 
-    @staticmethod
-    def check_form(request: HttpRequest, form):
+    def __init__(self, request: HttpRequest, form):
+        self.request = request
+        self.form = form
+
+    def check(self, error_msg="Invalid form data"):
         """
-        Checks the form and returns True if valid, False otherwise.
+        Must be called before working with form.
         """
-        if request.method == "POST":
-            if form.is_valid():
-                return True
-            else:
-                return False
-        return False
-    
-    @staticmethod
-    def check_login_form(request: HttpRequest, form):
+        if self.form.is_valid():
+            return True
+        else:
+            print("add error check")
+            self.form.add_error(None, error_msg)
+            return False
+
+    def save(self):
         """
-        Checks the login form and returns True if valid, False otherwise.
+        Creates a new object in the database and returns it.
         """
-        if request.method == "POST":
-            if form.is_valid():
-                user = auth.authenticate(request, **form.cleaned_data)
-                if user is not None:
-                    auth.login(request, user)
-                    return user
-                else:
-                    form.add_error(None, "Invalid username or password")
+        if self.check():
+            return self.form.save()
         return None
-    
+
+    def handle_post(self, handle_func=lambda: None):
+        if self.request.method == "POST":
+            return handle_func()
+
+    def handle_get(self, handle_func=lambda: None):
+        if self.request.method == "GET":
+            return handle_func()
+
+    def handle(self):
+        self.handle_post()
+        self.handle_get()
+
+    def retrieve(self):
+        """
+        Save the form and return the object created in database.
+        """
+        return self.handle_post(self.save)
+
     @staticmethod
-    def check_registration_form(request: HttpRequest, form):
+    def redirect_to(path='index', params=None, anchor="", **kwargs):
         """
-        Checks the registration form and returns True if valid, False otherwise.
+        Returns a URL string for redirecting to the specified path with optional params and anchor.
+
+        Example:
+            redirect_to('question', params={'page': 2}, anchor='answer-10', id=5)
+            -> '/question/5/?page=2#answer-10'
         """
-        if request.method == "POST":
-            if form.is_valid():
-                profile = form.save()
+        url = reverse_lazy(
+            path, kwargs=kwargs) if kwargs else reverse_lazy(path)
+        if params:
+            if isinstance(params, dict):
+                url += '?' + urlencode(params)
+            elif isinstance(params, str):
+                url += params if params.startswith('?') else '?' + params
+        if anchor:
+            url += f"#{anchor}"
+        return url
+
+
+class CouldContinueForm(BaseCheckForm):
+    """
+    Class to handle query parameters in the URL.
+    It is used in views to redirect to the next URL.
+    """
+
+    def redirect(self):
+        """
+        Returns string redirecting to the next URL.
+        """
+
+        request = self.request
+        # Redirect by "continue" parameter
+        if hasattr(request, 'GET'):
+            continue_url = request.GET.get('continue')
+            content = request.GET.get('content')
+            if continue_url:
+                # forward the content query parameter if present
+                # (used to keep the content of the answer form)
+                # when redirecting to the question page
+                if content:
+                    url_parts = list(urlparse(continue_url))
+                    query = parse_qs(url_parts[4])
+                    query['content'] = content
+                    url_parts[4] = urlencode(query, doseq=True)
+                    continue_url = urlunparse(url_parts)
+                return continue_url
+            else:
+                return 'index'
+
+
+class CheckAnswerForm(BaseCheckForm):
+    """
+    This is a class for checking answer forms.
+    """
+
+    def __init__(self, request: HttpRequest, form):
+        self.author = form.author
+        self.question_id = form.question_id
+        super().__init__(request, form)
+
+    def handle_get(self):
+        def handle_func():
+            self.form.fields['content'].initial = self.request.GET.get(
+                'content', '')
+        return super().handle_get(handle_func)
+
+    def redirect(self, answer):
+        """
+        Returns string redirecting to the specified answer.
+        """
+        page_number = Feed.get_answer_page_number_by_id(answer.id)
+        if not page_number:
+            page_number = 1
+
+        return BaseCheckForm.redirect_to(
+            path='question',
+            params={'page': page_number},
+            anchor=f"answer-{answer.id}",
+            id=self.question_id
+        )
+
+
+class CheckAskForm(BaseCheckForm):
+    """
+    This is a class for checking question forms.
+    """
+
+    def __init__(self, request: HttpRequest, form):
+        self.author = form.author
+        super().__init__(request, form)
+
+    def redirect(self, question):
+        """
+        Returns string redirecting to the specified question.
+        """
+        return BaseCheckForm.redirect_to(
+            path='question',
+            id=question.id
+        )
+
+
+class CheckAuthForm(CouldContinueForm):
+    """
+    This is a class for checking authentication forms.
+    """
+
+    def retrieve(self):
+        """
+        Retrieves the user from the form and logs them in.
+        If the form is not valid, it adds an error to the form.
+        Returns the user if successful, None otherwise.
+        """
+        def handle_func():
+            if self.check():
+                user = auth.authenticate(
+                    self.request, **self.form.cleaned_data)
+                if user is not None:
+                    auth.login(self.request, user)
+                else:
+                    self.form.add_error(None, "Invalid username or password")
+                return user
+            return None
+
+        return self.handle_post(handle_func)
+
+
+class CheckRegistrationForm(CouldContinueForm):
+    """
+    This is a class for checking registration forms.
+    """
+
+    def retrieve(self):
+        """
+        Retrieves the user from the form and logs them in.
+        If the form is not valid, it adds an error to the form.
+        Returns the user if successful, None otherwise.
+        """
+        def handle_func():
+            if self.check():
+                profile = self.form.save()
                 if profile:
                     user = profile.user
-                    auth.login(request, user)
+                    auth.login(self.request, user)
                     return user
                 else:
-                    form.add_error(None, "Cannot create user")
-        return None
-    
-    @staticmethod
-    def check_settings_form(request: HttpRequest, form):
+                    self.form.add_error(None, "Cannot create user")
+            return None
+
+        return self.handle_post(handle_func)
+
+
+class CheckSettingsForm(BaseCheckForm):
+    """
+    This is a class for checking settings forms.
+    """
+
+    def __init__(self, request: HttpRequest, form):
+        self.profile = request.user.profile
+        super().__init__(request, form)
+
+    def redirect(self):
         """
-        Checks the registration form and returns True if valid, False otherwise.
+        Returns string redirecting to the profile page.
         """
-        if request.method == "POST":
-            if form.is_valid():
-                form.save(request.user.profile)
-                return True
-        return None
-    
-    @staticmethod
-    def check_ask_form(request: HttpRequest, form):
-        """
-        Checks the ask form and returns True if valid, False otherwise.
-        """
-        if request.method == "POST":
-            if form.is_valid():
-                return form.save()
-        return None
-    
-    @staticmethod
-    def check_answer_form(request: HttpRequest, form):
-        """
-        Checks the answer form and returns True if valid, False otherwise.
-        """
-        if request.method == "POST":
-            if form.is_valid():
-                return form.save()
-        elif request.method == "GET":
-            form.fields['content'].initial = request.GET.get('content', '')
-        return None
+        return BaseCheckForm.redirect_to(
+            path='profile',
+            id=self.profile.id
+        )

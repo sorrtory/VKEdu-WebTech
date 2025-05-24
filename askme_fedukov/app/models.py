@@ -188,6 +188,9 @@ class Answer(Card):
                                    through='AnswerLike', blank=True, related_name='answer_likes')
     question = models.ForeignKey(Question,
                                  related_name='answers', on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.content
 
 
 class TagManager(models.Manager):

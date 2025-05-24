@@ -91,6 +91,14 @@ class SettingsForm(forms.Form):
     password1 = forms.CharField(widget=forms.PasswordInput, label='Password', required=False)
     password2 = forms.CharField(widget=forms.PasswordInput, label='Repeat password', required=False)
     
+    def __init__(self, *args, profile=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.profile = profile
+        self.fields['username'].widget.attrs['placeholder'] = profile.user.username
+        self.fields['email'].widget.attrs['placeholder'] = profile.user.email
+        self.fields['avatar'].initial = profile.avatar
+        self.fields['avatar'].widget.attrs['accept'] = 'image/*'
+
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
@@ -108,7 +116,7 @@ class SettingsForm(forms.Form):
             raise forms.ValidationError('This username is already taken.')
         return username
 
-    def save(self, profile):
+    def save(self):
         """
         Update the user's profile in the database.
         """
@@ -116,7 +124,8 @@ class SettingsForm(forms.Form):
         email = self.cleaned_data['email']
         password = self.cleaned_data['password1']
         avatar = self.cleaned_data['avatar']
-
+        profile = self.profile
+        
         # Update the user
         user = profile.user
         if username:
@@ -136,13 +145,15 @@ class SettingsForm(forms.Form):
             profile.avatar = avatar
             profile.save()
 
+        return profile
+
 class AskForm(forms.ModelForm):
     """
     This form is used for asking a question.
     """
     def __init__(self, *args, author=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self._author = author
+        self.author = author
 
     class Meta:
         model = Question
@@ -177,7 +188,7 @@ class AskForm(forms.ModelForm):
         Save the question to the database.
         """
         question = super().save(commit=False)
-        question.author = self._author
+        question.author = self.author
         
         if commit:
             question.save()
@@ -208,18 +219,18 @@ class AnswerForm(forms.ModelForm):
        
     def __init__(self, *args, author=None, question_id=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self._author = author
-        self._question_id = question_id
+        self.author = author
+        self.question_id = question_id
 
     def save(self, commit=True):
         """
         Save the answer to the database.
         """
         answer = super().save(commit=False)
-        answer.author = self._author
-        answer.question = Question.objects.get(id=self._question_id)
+        answer.author = self.author
+        answer.question = Question.objects.get(id=self.question_id)
         
         if commit:
             answer.save()
-        
+
         return answer

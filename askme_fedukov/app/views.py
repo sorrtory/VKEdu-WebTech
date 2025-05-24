@@ -6,7 +6,7 @@ from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 
-from .utils import Feed, Context, Authentication, CheckForm
+from .utils import Feed, Context, Authentication, CheckSettingsForm, CheckAnswerForm, CheckAskForm, CheckRegistrationForm
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
 
 from urllib.parse import urlencode, urlparse, parse_qs, urlunparse
@@ -71,19 +71,19 @@ def question(request, id):
     # Create answer form
     form = AnswerForm(request.POST or None,
                       author=auth.profile, question_id=id)
-    new_answer = CheckForm.check_answer_form(request, form)
+    form_checker = CheckAnswerForm(request, form)
 
-    # Redirect to the question page with the new answer
+    # Insert ?content to form
+    form_checker.handle_get()
+
+    # Redirect if it is a successful POST request
+    new_answer = form_checker.retrieve()
     if new_answer is not None:
-        page_number = Feed.get_answer_page_number_by_id(new_answer.id)
-        if not page_number:
-            page_number = 1
-        return redirect(f"{reverse_lazy('question', kwargs={'id': id})}?page={page_number}#answer-{new_answer.id}")
+        return redirect(form_checker.redirect(new_answer))
 
     # Create pages of answers to the question
     page_number = request.GET.get('page', 1)
     answers = Feed.get_answers(id, page_number)
-    
     
     # Create context for the page
     data = {
@@ -124,15 +124,20 @@ def ask(request):
     # Get user profile
     auth = Authentication(request)
 
+    # Create form for asking a question
+    form = AskForm(request.POST or None, author=auth.profile)
+    form_checker = CheckAskForm(request, form)
+    
+    # Redirect if it is a successful POST request
+    new_qustion = form_checker.retrieve()
+    if new_qustion is not None:
+        # return redirect('question', id=new_qustion.id)
+        return redirect(form_checker.redirect(new_qustion))
+
     # Create context for the page
     data = {"MAIN_BORDER": "0",
             "ctx": Context(auth, None, "Ask question"),
-            "form": AskForm(request.POST, request.FILES, author=auth.profile)}
-
-    # Check for POST request
-    new_qustion = CheckForm.check_ask_form(request, data["form"])
-    if new_qustion:
-        return redirect('question', id=new_qustion.id)
+            "form": form}
 
     return render(request, "ask.html", context=data)
 
@@ -144,25 +149,12 @@ def login(request):
 
     # Check if user is authenticated
     auth = Authentication(request)
-    # Set login form
-    auth.set_login_form(request)
 
-    # Redirect by continue parameter
-    if auth.authenticated:
-        continue_url = request.GET.get('continue')
-        content = request.GET.get('content')
-        if continue_url:
-            # forward the content query parameter if present
-            if content:
-                url_parts = list(urlparse(continue_url))
-                query = parse_qs(url_parts[4])
-                query['content'] = content
-                url_parts[4] = urlencode(query, doseq=True)
-                continue_url = urlunparse(url_parts)
-            return redirect(continue_url)
-        else:
-            return redirect('index')
-
+    # Set login form (login form is used in templates as ctx.auth.login_form)
+    continue_url = auth.setup_login_form(request)
+    if continue_url is not None:
+        return redirect(continue_url)
+    
     # Create context for the page
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
             "ctx": Context(auth, None, "Login")}
@@ -178,17 +170,19 @@ def signup(request):
     # Get user profile
     auth = Authentication(request)
 
+    # Create form for user registration
+    form = ProfileForm(request.POST or None, request.FILES or None)
+    form_checker = CheckRegistrationForm(request, form)
+
+    # Redirect if it is a successful POST request
+    new_user = form_checker.retrieve()
+    if new_user is not None:
+        return redirect(form_checker.redirect())
+
     # Set context for the page
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
             "ctx": Context(auth, None, "Sign up"),
-            "profile_form": ProfileForm(request.POST, request.FILES)}
-
-    # Check for POST request
-    if CheckForm.check_registration_form(request, data["profile_form"]):
-        if request.GET.get('continue'):
-            return redirect(request.GET.get('continue'))
-        else:
-            return redirect('index')
+            "profile_form": form}
 
     return render(request, "signup.html", context=data)
 
@@ -202,20 +196,20 @@ def settings(request):
     # Get user profile
     auth = Authentication(request)
 
+    # Create form for user settings
+    form = SettingsForm(request.POST or None, request.FILES or None, profile=auth.profile)
+    form_checker = CheckSettingsForm(request, form)
+    
+    # Redirect if it is a successful POST request
+    new_user = form_checker.retrieve()
+    if new_user is not None:
+        return redirect(form_checker.redirect())
+
     # Create context
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
             "ctx": Context(auth, None, "My profile"),
-            "form": SettingsForm(request.POST, request.FILES)}
-    # Set default values for the form
-    data["form"].fields['username'].widget.attrs['placeholder'] = auth.profile.user.username
-    data["form"].fields['email'].widget.attrs['placeholder'] = auth.profile.user.email
-    data["form"].initial['avatar'] = auth.profile.avatar
-
-    # Check for POST request
-    if CheckForm.check_settings_form(request, data["form"]):
-        # Redirect to the same page to show updated data
-        return redirect('settings')
-
+            "form": form}
+    
     return render(request, "settings.html", context=data)
 
 
