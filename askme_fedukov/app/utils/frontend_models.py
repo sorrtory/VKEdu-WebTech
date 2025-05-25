@@ -1,4 +1,5 @@
 # This file describes frontend classes for cards and tags.
+# They are used in templates for getting data.
 
 from app.models import Answer, Profile, Tag
 
@@ -12,6 +13,20 @@ popularised in the 1960s with the release of Letraset sheets containing Lorem
 Ipsum passages, and more recently with desktop publishing software like Aldus 
 PageMaker including versions of Lorem Ipsum.'''
 
+class BadgeTag:
+    """
+    This is a class for Tag's element frontend.
+    """
+
+    def __init__(self, name: str, type: int = 0):
+        self.name = name
+        self.count = 0
+        self.type = type
+
+        # Bootsrap's badge type, use like bg-{{ tag.bs_type }}
+        self.bs_type = "primary"
+        if type < len(Tag.TAG_CHOICES):
+            self.bs_type = Tag.TAG_CHOICES[type][1]
 
 class CardBase:
     """
@@ -19,24 +34,24 @@ class CardBase:
     """
 
     def __init__(self, card_type: str, id: int,  author: Profile,
-                 header: str = None, text: str = None, tags: list[str] = None, likes: int = 0):
+                 header: str = None, text: str = None, tags: list[BadgeTag] = None, likes: int = 0):
         self.type = card_type   # explore / main / answer
-        # Explore cards example is on index.html
-        # Main cards example is on question.html. In fact the largest one
-        # Answer cards examples are below the main
+        # Explore cards are like on index.html
+        # Main cards are on question.html. In fact, the first and largest one
+        # Answer cards are below the main cards on question.html
 
         # Layout
         self.AVATAR_SIZE = "2"  # col-{{AVATAR_SIZE}}
         self.CARD_BORDER = "1"  # border-{{CARD_BORDER}}
 
-        # Database
+        # Author of the card
         self.author = author
         # (Question.id or Answer.id) Will be used in URL
         self.id = id
 
         self.header = "LOREM IPSUM" if header is None else header
         self.text = LOREM if text is None else text
-        self.tags = ["tag1", "tag2"] if tags is None else tags
+        self.tags = tags
         self.likes = likes
 
 
@@ -74,20 +89,6 @@ class CardAnswer(CardBase):
         super().__init__("answer", id, author, text=text, tags=tags, likes=likes)
 
 
-class BadgeTag():
-    """
-    This is a class for Tag's element frontend.
-    """
-
-    def __init__(self, name: str, type: int = 0):
-        self.name = name
-        self.count = 0
-        self.type = type
-
-        # Bootsrap's badge type, use like bg-{{ tag.bs_type }}
-        self.bs_type = "primary"
-        if type < len(Tag.TAG_CHOICES):
-            self.bs_type = Tag.TAG_CHOICES[type][1]
 
 class ProfileCard:
     """

@@ -1,4 +1,5 @@
 <!-- CARD -->
+{% load bootstrap_icons %}
 <article class="card border border-{{ card.CARD_BORDER|default:'' }} d-flex flex-row justify-content-start"
   id="answer-{{ card.id }}">
   <div class="w-100">
@@ -37,12 +38,11 @@
       </div>
 
       <div class="row flex-nowrap">
-        {% load bootstrap_icons %}
         {% if card.type == "main" %}
         <div class="col-2 col-sm-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
-          <!-- Large buttons -->
-          <div
-            class="col-1 d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap flex-sm-nowrap">
+          <!-- Large size buttons -->
+          <div class="col-1 d-flex gap-2 justify-content-center align-items-center 
+                      align-self-end flex-wrap flex-sm-nowrap">
             <button class="border-0 bg-body p-0">
               {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.75em' %}
             </button>
@@ -54,6 +54,7 @@
         </div>
         {% elif card.type == "answer" %}
         <div class="col-5 col-sm-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
+          <!-- Medium size buttons but they don't flex wrap as a column-->
           <div class="d-flex gap-2 justify-content-center align-items-center align-self-end">
             <button class="border-0 bg-body p-0">
               {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.6em' %}
@@ -65,11 +66,12 @@
           </div>
         </div>
         {% elif card.type == "explore" %}
-        <div class="col-2 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
-          <!-- Usual buttons -->
-          <div
-            class="d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap px-3 px-md-0 flex-md-nowrap">
-            <button class="border-0 bg-body p-0">
+        <div class="col-2 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center"
+          data-card-id="{{ card.id }}">
+          <!-- Usual size buttons -->
+          <div class="d-flex gap-2 justify-content-center align-items-center 
+                      align-self-end flex-wrap px-3 px-md-0 flex-md-nowrap">
+            <button class="border-0 bg-body p-0" data>
               {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.5em' %}
             </button>
             <span class="text-center h5 m-0 p-0 my-auto pb-1">{{ card.likes }}</span>
@@ -123,7 +125,8 @@
           </div>
         </div>
         {% elif card.type == "answer" %}
-        <input type="checkbox" class="btn-check" id="btn-check-outlined" autocomplete="off">
+        <input type="checkbox" class="btn-check js-btn-correct" id="btn-check-outlined" autocomplete="off"
+          data-card-id="{{ card.id }}" data-answer-id="{{ card.answer_id }}">
         <label class="btn btn-outline-primary mt-2" for="btn-check-outlined">Correct!</label><br>
         {% else %}
         {% endif %}
