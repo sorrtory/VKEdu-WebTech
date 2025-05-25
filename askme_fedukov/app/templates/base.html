@@ -32,15 +32,15 @@
 
 </head>
 
-<body class="px-2 mx-auto">
+<body class="px-1 px-sm-2  mx-auto">
   <!-- Header -->
   <header class="bg-light navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary mb-3 p-1">
-    <div class="container-fluid justify-content-start flex-nowrap col-lg-10 col-xxl-7">
-      <a class="navbar-brand text-dark" href="{% url 'index' %}">
-        <h1>AskPupkin</h1>
+    <div class="container-fluid justify-content-start flex-nowrap col-lg-10 col-xxl-7 px-0 px-sm-2">
+      <a class="navbar-brand text-dark me-2" href="{% url 'index' %}">
+        <h1 class="">AskPupkin</h1>
       </a>
-      <div class="col-6 col-xl-5">
-        <form class="container d-flex" role="search">
+      <div class="col-6">
+        <form class="container d-flex p-0 m-0" role="search">
           <input class="form-control me-2 col" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-success col-4 col-sm-3 col-md-2" type="submit">ASK!</button>
         </form>
@@ -52,12 +52,21 @@
           <img src="{{ ctx.auth.profile.avatar.url }}" class="img-fluid img-thumbnail rounded-circle"
             alt="Profile picture">
         </div>
-        <div class="d-flex flex-column justify-content-center p-0 m-0  align-items-center" style="min-width:0;">
-          <a class="fw-bold text-dark text-decoration-none p-0 m-0" href="{% url 'profile' 0 %}" style="font-size:1.5rem;white-space:nowrap;">{{ ctx.auth.profile.user.username }}</a>
-          <div class="d-flex gap-1 p-0 m-0 flex-wrap justify-content-center" style="font-size:0.95rem;">
-            <a class="p-0 m-0" href="{% url 'settings' %}">settings</a>
-            <a class="p-0 m-0" href="#" onclick="document.getElementById('logout-form').submit()">log out</a>
-            <form id="logout-form" action="{% url 'signout' %}?continue={{ request.path }}" method="post" style="display:none;">
+        <div class="d-flex flex-column justify-content-start p-0 m-0 align-items-center ps-1" style="min-width:0;">
+          <a class="fw-bold fs-4 text-break text-dark text-decoration-none p-0 m-0" href="{% url 'profile' 0 %}">
+            {{ ctx.auth.profile.user.username }}
+          </a>
+          <div class="d-flex gap-1 p-0 m-0 flex-wrap justify-content-center align-items-start"
+            style="font-size:0.95rem;">
+            <a class="p-0 m-0 d-none d-sm-inline" href="{% url 'settings' %}">settings</a>
+            <a class="p-0 m-0 d-none d-sm-inline" href="#" 
+              onclick="document.getElementById('logout-form').submit()">logout</a>
+            <a class="p-0 m-0 d-inline d-sm-none d-flex justify-content-center align-items-center"
+              href="{% url 'settings' %}">{% bs_icon 'gear' %}</a>
+            <a class="p-0 m-0 d-inline d-sm-none d-flex justify-content-center align-items-center" href="#"
+              onclick="document.getElementById('logout-form').submit()">{% bs_icon 'box-arrow-right' %}</a>
+            <form id="logout-form" action="{% url 'signout' %}?continue={{ request.path }}" method="post"
+              style="display:none;">
               {% csrf_token %}
             </form>
           </div>
@@ -65,24 +74,34 @@
       </div>
       {% else %}
       <!-- Not authenticated -->
-      <div class="container col-3 me-0 d-flex justify-content-center gap-3 flex-wrap">
-        <a href="{% url 'login' %}?continue={{ request.path }}">log in</a>
-        <a href="{% url 'signup' %}">register</a>
+      <div class="container col-sm-3 me-0 d-flex justify-content-center gap-1 gap-sm-3 flex-wrap align-items-center">
+        <a href="{% url 'login' %}?continue={{ request.path }}">
+          <span class="d-none d-sm-inline">log in</span>
+          <span class="d-inline d-sm-none d-flex justify-content-center align-items-center pe-2">
+            {% bs_icon 'box-arrow-in-right' %}
+          </span>
+        </a>
+        <a href="{% url 'signup' %}">
+          <span class="d-none d-sm-inline">register</span>
+          <span class="d-inline d-sm-none d-flex justify-content-center align-items-center">
+            {% bs_icon 'person-plus'%}
+          </span>
+        </a>
       </div>
       {% endif %}
     </div>
   </header>
-  <main class="container-fluid mx-auto d-flex col-xl-10 col-xxl-7">
+  <main class="container-fluid mx-auto d-flex col-lg-10 col-xxl-7">
     <!-- Main content -->
-    <section class="container col-{{ MAIN_COL|default:'8' }} border border-{{ MAIN_BORDER|default:'' }}">
+    <section class="container col-7 col-sm-{{ MAIN_COL|default:'8' }} border border-{{ MAIN_BORDER|default:'' }}">
       {% block content %} {% endblock %}
     </section>
     <!-- Aside info -->
-    <aside class="ms-auto col-3">
+    <aside class="ms-auto col-sm-3">
       <div class="container">
         <h2 class="h2">Popular Tags</h2>
         <div class="container ">
-         {% if not ctx.hot_tags %}
+          {% if not ctx.hot_tags %}
           <p class="text-muted">No tags yet</p>
           {% endif %}
           {% for tag in ctx.hot_tags %}
@@ -94,7 +113,9 @@
         <h2 class="mt-3 mb-0">Best Members</h2>
         <ul class="list-group list-group-flush">
           {% if not ctx.best_members %}
-          <li class="list-group-item"><p class="text-muted">No members yet</p></li>
+          <li class="list-group-item">
+            <p class="text-muted">No members yet</p>
+          </li>
           {% endif %}
           {% for profile in ctx.best_members %}
           <li class="list-group-item"><a href="{% url 'profile' profile.id %}">{{ profile.user.username }}</a></li>

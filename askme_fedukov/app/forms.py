@@ -98,6 +98,10 @@ class SettingsForm(forms.Form):
         self.fields['avatar'].initial = profile.avatar
         self.fields['avatar'].widget.attrs['accept'] = 'image/*'
 
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.PasswordInput)):
+                field.widget.attrs.setdefault('style', 'width: 100%; box-sizing: border-box;')
+
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
@@ -153,6 +157,9 @@ class AskForm(forms.ModelForm):
     def __init__(self, *args, author=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.author = author
+        for field_name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.Textarea)):
+                field.widget.attrs.setdefault('style', 'width: 100%; box-sizing: border-box;')
 
     class Meta:
         model = Question

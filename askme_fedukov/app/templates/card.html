@@ -4,7 +4,8 @@
   <div class="w-100">
     <div class="card-body container">
       <div class="row mb-1">
-        <div class="col-5 col-sm-4 mb-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} mb-sm-1 d-flex justify-content-center">
+        <div class="col-5 col-sm-4 mb-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} 
+                    mb-sm-1 d-flex justify-content-center h-100">
           <img src="{{ card.author.avatar.url }}" class="img-fluid img-thumbnail border-2" alt="Asker avatar" />
         </div>
         <div class="col">
@@ -33,7 +34,6 @@
         </div>
       </div>
 
-      <!-- TODO Add authentication and likes -->
       <div class="row flex-nowrap">
         {% load bootstrap_icons %}
         {% if card.type == "main" %}

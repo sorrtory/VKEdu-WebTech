@@ -19,13 +19,13 @@
         {% if answer_form.content.errors %}
             <div class="text-danger small">{{ answer_form.content.errors.0 }}</div>
         {% endif %}
-        <button type="submit" class="mt-1 btn-dark col-4 col-sm-3 col-md-2">Answer</button>
+        <button type="submit" class="mt-1 btn-dark col-5 col-sm-3 col-md-2">Answer</button>
     </form>
     {% else %}
     <form class="pb-3" action="/login" method="get" id="answer_form">
         <input type="hidden" name="continue" value="{{ request_path }}#answer_form" /> 
         {{ answer_form.content }}
-        <button type="submit" class="mt-1 btn-dark col-4 col-sm-3 col-md-2">Answer</button>
+        <button type="submit" class="mt-1 btn-dark col-5 col-sm-3 col-md-2">Answer</button>
     </form>
     {% endif %}
 </section>

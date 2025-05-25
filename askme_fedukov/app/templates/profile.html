@@ -11,13 +11,16 @@
                 style="width: 120px; height: 120px; object-fit: cover;">
         </div>
         <div class="col-12 col-md-8 text-center text-md-start">
-            <div class="d-flex align-items-center mb-2">
-                <h4 class="mb-1">{{ ctx.feed.profile.username }}</h4>
-                {% if ctx.feed.profile.nickname %}
-                <p class="mb-1 text-muted ms-1">
-                    (<span class="fw-semibold">{{ ctx.feed.profile.nickname }}</span>)
-                </p>
-                {% endif %}
+            <div class="d-flex text-center align-items-center mb-2">
+
+                <div class="d-flex w-50 ms-auto ms-md-0 justify-content-start align-items-center">
+                    <h4 class="mb-1 me-2">{{ ctx.feed.profile.username }}</h4>
+                    {% if ctx.feed.profile.nickname %}
+                    <p class="mb-1 text-muted ps-2 mb-0" style="white-space: nowrap;">
+                        (<span class="fw-semibold">{{ ctx.feed.profile.nickname }}</span>)
+                    </p>
+                    {% endif %}
+                </div>
             </div>
             <p class="mb-1 text-muted">{{ ctx.feed.profile.email }}</p>
             {% if ctx.feed.profile.id == ctx.auth.profile.id %}

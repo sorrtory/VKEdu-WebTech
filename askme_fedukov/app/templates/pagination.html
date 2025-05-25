@@ -1,7 +1,7 @@
 <!-- PAGINATION -->
- {% if ctx.feed.pages.num_pages > 1 %}
+{% if ctx.feed.pages.num_pages > 1 %}
   <nav aria-label="Page navigation example">
-    <ul class="pagination">
+    <ul class="pagination" id="responsive-pagination">
       {% if ctx.feed.current_page.has_previous %}
       <li class="page-item">
         <a class="page-link" href="?page={{ ctx.feed.current_page.previous_page_number }}" aria-label="Previous">
@@ -43,4 +43,16 @@
       {% endif %}
     </ul>
   </nav>
+  <script>
+    function setPaginationSize() {
+      var ul = document.getElementById('responsive-pagination');
+      if (window.innerWidth < 576) {
+        ul.classList.add('pagination-sm');
+      } else {
+        ul.classList.remove('pagination-sm');
+      }
+    }
+    setPaginationSize();
+    window.addEventListener('resize', setPaginationSize);
+  </script>
 {% endif %}
