@@ -6,7 +6,9 @@
       <div class="row mb-1">
         <div class="col-5 col-sm-4 mb-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} 
                     mb-sm-1 d-flex justify-content-center h-100">
-          <img src="{{ card.author.avatar.url }}" class="img-fluid img-thumbnail border-2" alt="Asker avatar" />
+          <a href="{% url 'profile' card.author.user.id %}" class="text-decoration-none">
+            <img src="{{ card.author.avatar.url }}" class="img-fluid img-thumbnail border-2" alt="Asker avatar" />
+          </a>
         </div>
         <div class="col">
           <a class="card-title h5 text-break" href="{% url 'question' card.id %}">
