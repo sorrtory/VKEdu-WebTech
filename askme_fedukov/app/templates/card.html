@@ -42,16 +42,19 @@
       <div class="row flex-nowrap">
         <!-- Like buttons -->
         <div class="{{ card.BTN_LIKE_COL }} col-md-{{ card.AVATAR_SIZE|default:'2' }} 
-                  d-flex justify-content-center mx-auto mx-sm-0">
+                  d-flex justify-content-center mx-auto mx-sm-0"
+                  data-card-id="{{ card.id }}" data-card-type="{{ card.type }}" data-like-container>
           <div class="d-flex gap-2 justify-content-center align-items-center 
                       align-self-end px-3 px-md-0 {{ card.BTN_LIKE_WRAP }}">
-            <button class="border-0 bg-body p-0" {{ card.BTN_LIKE_DISABLED }}>
+            <button class="border-0 bg-body p-0" {{ card.BTN_LIKE_DISABLED }} 
+                    data-like-btn>
               {% bs_icon 'plus-circle'|add:card.BTN_LIKE_FILL extra_classes='text-'|add:card.BTN_LIKE_COLOR size=card.BTN_LIKE_SIZE %}
             </button>
             <span class="text-center h{{ card.LIKE_VALUE_SIZE }} m-0 p-0 my-auto pb-1">
               {{ card.likes }}
             </span>
-            <button class="border-0 bg-body p-0" {{ card.BTN_DISLIKE_DISABLED }}>
+            <button class="border-0 bg-body p-0" {{ card.BTN_DISLIKE_DISABLED }} 
+                    data-dislike-btn>
                 {% bs_icon 'dash-circle'|add:card.BTN_DISLIKE_FILL extra_classes='text-'|add:card.BTN_DISLIKE_COLOR size=card.BTN_LIKE_SIZE %}
             </button>
           </div>

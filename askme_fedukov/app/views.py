@@ -237,7 +237,7 @@ def profile(request, id):
         title = "My profile"
 
     # Get profile by id
-    feed = ProfileFeed(id)
+    feed = ProfileFeed(auth, id)
     if feed.profile is None:
         raise Http404("Profile not found")
 
@@ -245,6 +245,8 @@ def profile(request, id):
             "ctx": Context(auth, feed, title), }
     return render(request, "profile.html", context=data)
 
+def like(request, model_type, id):
+    pass
 
 class CustomLogoutView(LogoutView):
     def get_redirect_url(self):

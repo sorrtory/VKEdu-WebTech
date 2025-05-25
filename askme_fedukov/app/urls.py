@@ -16,6 +16,8 @@ urlpatterns = [
     path("settings/", views.settings, name="settings"),
     path("profile/edit", views.settings),
     path("profile/<int:id>/", views.profile, name="profile"),
+
+    path("")
 ]
 
 if settings.DEBUG:

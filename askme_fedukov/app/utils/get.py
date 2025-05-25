@@ -26,7 +26,6 @@ def get_answer_page_number_by_id(id: int, cards_per_page: int = 3):
         return None
 
 
-# TODO: add auth to feed
 def get_feed_explore(auth: Authentication, page_number: int, cards_per_page: int = 3):
     """
     Returns a paginator of CardExplore objects.
@@ -160,15 +159,6 @@ def get_userlike_status_for(auth: Authentication, model: Question | Answer, id: 
             return 1
         else:
             return 0
-
-        # # If the user is not authenticated, return 0
-        # if auth.profile is None:
-        #     return 0
-        # print("Checking like status for", model.__name__, "with id", id)
-        # like = obj.likes.filter(id=auth.profile.id).get()
-        # if like.is_dislike:
-        #     return -1
-        # return 1
     except model.DoesNotExist:
         return None
     

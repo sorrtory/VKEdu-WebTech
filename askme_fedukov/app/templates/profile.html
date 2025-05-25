@@ -8,11 +8,11 @@
     <div class="row mb-3 align-items-center">
         <div class="col-12 col-md-4 text-center mb-3 mb-md-0">
             <img src="{{ ctx.feed.profile.avatar.url }}" alt="Profile picture" class="rounded-circle border"
-                style="width: 120px; height: 120px; object-fit: cover;">
+                style="max-width: 120px; max-height: 120px; object-fit: cover;">
         </div>
-        <div class="col-12 col-md-8 text-center text-md-start">
+        <div class="col-12 col-md-8 text-center text-md-start h-100">
             <div class="d-flex justify-content-center justify-content-md-start align-items-center mb-2 flex-wrap">
-                <h4 class="m-0 p-0 w-auto overflow-auto pb-1">
+                <h4 class="m-0 p-0 w-auto overflow-auto h-100 pb-2">
                     {{ ctx.feed.profile.username }}
                 </h4>
                 {% if ctx.feed.profile.nickname %}
