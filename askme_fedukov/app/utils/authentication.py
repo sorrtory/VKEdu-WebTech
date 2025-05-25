@@ -3,9 +3,6 @@ from django.contrib import auth
 
 from app.models import Profile
 
-from app.utils.form_checker import CheckAuthForm
-from app.forms import LoginForm
-
 class Authentication:
     """
     This is a class for user session
@@ -34,6 +31,13 @@ class Authentication:
             self.profile = Profile.objects.get(user=auth.get_user(request))
 
     def setup_login_form(self, request: HttpRequest):
+        """
+        Create a login form and check if the user can log in.
+        """
+        # Can be used in pop ups instead of full login page
+        from app.utils.form_checker import CheckAuthForm
+        from app.forms import LoginForm
+
         self.login_form = LoginForm(request.POST or None)
         login_form_checker = CheckAuthForm(request, self.login_form)
 

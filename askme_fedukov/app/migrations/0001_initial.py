@@ -62,6 +62,7 @@ class Migration(migrations.Migration):
             name='QuestionLike',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('is_dislike', models.BooleanField(default=False, help_text='True for dislike, False for like')),
                 ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.question')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.profile')),
             ],
@@ -78,6 +79,7 @@ class Migration(migrations.Migration):
             name='AnswerLike',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('is_dislike', models.BooleanField(default=False, help_text='True for dislike, False for like')),
                 ('answer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.answer')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='app.profile')),
             ],

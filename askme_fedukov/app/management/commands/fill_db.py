@@ -41,9 +41,11 @@ class Command(BaseCommand):
     def create_test_user(self):
         test_user, _ = User.objects.get_or_create(
             username='testuser',
-            defaults={'email': 'testuser@example.com'}
+            defaults={'email': 'testuser@example.com', 'is_superuser': True, 'is_staff': True}
         )
         test_user.set_password('testpassword')
+        test_user.is_superuser = True
+        test_user.is_staff = True
         test_user.save()
 
         # Create a test profile for the test user

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+
 class ProfileManager(models.Manager):
     """
     This is the custom manager for the Profile model.
@@ -35,17 +36,19 @@ class ProfileManager(models.Manager):
             user.set_password(password)
             user.save()
             if avatar:
-                profile, created = self.get_or_create(user=user, defaults={'avatar': avatar})
+                profile, created = self.get_or_create(
+                    user=user, defaults={'avatar': avatar})
             else:
                 profile, created = self.get_or_create(user=user)
             if not created:
                 return None
             return profile
         return None
-    
+
 
 def user_avatar_path(instance, filename):
     return f'avatars/user_{instance.user.id}/{filename}'
+
 
 class Profile(models.Model):  # Can also derive from AbstractBaseUser
     """
@@ -63,7 +66,7 @@ class Profile(models.Model):  # Can also derive from AbstractBaseUser
 
     def __str__(self):
         return self.user.username
-    
+
     @property
     def tags(self):
         """
@@ -96,6 +99,8 @@ class QuestionLike(models.Model):
     """
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     question = models.ForeignKey("Question", on_delete=models.CASCADE)
+    is_dislike = models.BooleanField(default=False,
+                                     help_text="True for dislike, False for like")
 
     class Meta:
         unique_together = ('user', 'question')
@@ -131,7 +136,6 @@ class Question(Card):
     This model represents a question card. 
     """
     objects = QuestionManager()
-
     # title         from Card base class
     # content       from Card base class
     # created_at    from Card base class
@@ -169,7 +173,9 @@ class AnswerLike(models.Model):
     """
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     answer = models.ForeignKey("Answer", on_delete=models.CASCADE)
-
+    is_dislike = models.BooleanField(default=False,
+                                     help_text="True for dislike, False for like")
+    # TODO make sure to migrate
     class Meta:
         unique_together = ('user', 'answer')
 
@@ -188,7 +194,7 @@ class Answer(Card):
                                    through='AnswerLike', blank=True, related_name='answer_likes')
     question = models.ForeignKey(Question,
                                  related_name='answers', on_delete=models.CASCADE)
-    
+
     def __str__(self):
         return self.content
 
@@ -199,7 +205,7 @@ class TagManager(models.Manager):
         Returns tags by number of questions.
         """
         return self.annotate(num_questions=models.Count('questions')).order_by('-num_questions')[:8]
-    
+
 
 class Tag(models.Model):
     """
