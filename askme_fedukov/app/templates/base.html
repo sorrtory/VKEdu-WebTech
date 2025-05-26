@@ -12,13 +12,15 @@
   {% load bootstrap5 %}
   {% bootstrap_css %}
   {% bootstrap_javascript %}
-  {% load bootstrap_icons %}
   {% load static %}
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Ponomar&display=swap" rel="stylesheet">
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  
   <style>
     body {
       font-family: "Ponomar", system-ui;
@@ -64,7 +66,7 @@
             {{ ctx.auth.profile.user.username }}
           </a>
           <a href="{% url 'profile' ctx.auth.profile.id %}" class="d-inline d-md-none">
-            {% bs_icon 'person-circle' %}
+            <i class="bi bi-person-circle"></i>
           </a>
           <div class="d-flex gap-1 p-0 m-0 flex-wrap justify-content-center align-items-start"
             style="font-size:0.95rem;">
@@ -75,9 +77,9 @@
 
             <!-- Icons for sm and less screens -->
             <a class="p-0 m-0 d-inline d-sm-none d-flex justify-content-center align-items-center"
-              href="{% url 'settings' %}">{% bs_icon 'gear' %}</a>
+              href="{% url 'settings' %}"><i class="bi bi-gear"></i></a>
             <a class="p-0 m-0 d-inline d-sm-none d-flex justify-content-center align-items-center" href="#"
-              onclick="document.getElementById('logout-form').submit()">{% bs_icon 'box-arrow-right' %}</a>
+              onclick="document.getElementById('logout-form').submit()"><i class="bi bi-box-arrow-right"></i></a>
               
             <!-- Logout form -->
             <form id="logout-form" action="{% url 'signout' %}?continue={{ request.path }}" method="post"
@@ -93,13 +95,13 @@
         <a href="{% url 'login' %}?continue={{ request.path }}">
           <span class="d-none d-sm-inline">log in</span>
           <span class="d-inline d-sm-none d-flex justify-content-center align-items-center pe-2">
-            {% bs_icon 'box-arrow-in-right' %}
+            <i class="bi bi-box-arrow-in-right"></i>
           </span>
         </a>
         <a href="{% url 'signup' %}">
           <span class="d-none d-sm-inline">register</span>
           <span class="d-inline d-sm-none d-flex justify-content-center align-items-center">
-            {% bs_icon 'person-plus'%}
+            <i class="bi bi-person-plus"></i>
           </span>
         </a>
       </div>

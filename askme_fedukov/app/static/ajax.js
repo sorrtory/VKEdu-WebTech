@@ -15,29 +15,6 @@ function name(params) {
         });
 }
 
-like_active = `\
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
-  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
-</svg>
-`
-like_inactive = `\
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-</svg>
-`
-dislike_inactive = `\
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8"/>
-</svg>
-`
-dislike_active = `\
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle-fill" viewBox="0 0 16 16">
-  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z"/>
-</svg>
-`
-
 
 function likeCard(like_type, like_action, card_id, card_type) {
 
@@ -66,8 +43,8 @@ function likeCard(like_type, like_action, card_id, card_type) {
                         likeBtn.classList.remove("btn-success", "text-success", "text-muted");
                         dislikeBtn.classList.remove("btn-danger", "text-danger", "text-muted");
                         // Remove all icon classes for plus/dash
-                        const likeIcon = likeBtn.querySelector("svg");
-                        const dislikeIcon = dislikeBtn.querySelector("svg");
+                        const likeIcon = likeBtn.querySelector("i");
+                        const dislikeIcon = dislikeBtn.querySelector("i");
                         if (likeIcon) {
                             likeIcon.classList.remove(
                                 "bi-plus-circle", "bi-plus-circle-fill",
