@@ -102,3 +102,25 @@ Or you can try to build it on your own
     - Profile settings
     - New question
     - New answer
+
+5. Ajax
+
+> Django REST Framework is nice. Later I can try to use it
+
+## Conclusion
+
+- Creating several like types (AnswerLike, QuestionLike) is useless and messy
+- Creating additional class layer for frontend is overengineering (in Django?)
+- Creating dynamic layout with jinga is difficult
+- Bootsrap customization is a waste of time
+- Axios=isEven (maybe can be used in node.js or for progress bars)
+
+Django is really powerful when you need to create an app very fast.
+It has a lot of in-built options almost for any case.
+
+Django customization is a torture.
+Well, it has options but you will reinventing the wheel.
+\
+
+So, to sum up, if you need something simple the formula is bootsrap+django+djangoREST.
+Otherwise you don't need to chose this framework.

@@ -17,7 +17,7 @@ urlpatterns = [
     path("profile/edit", views.settings),
     path("profile/<int:id>/", views.profile, name="profile"),
 
-    path("")
+    path("like/", views.like, name="like"),
 ]
 
 if settings.DEBUG:

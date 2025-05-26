@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+# TODO: move get and set from the structure of the models to the managers
 
 class ProfileManager(models.Manager):
     """
@@ -151,7 +152,7 @@ class Question(Card):
 
     def is_hot(self):
         """
-        Determines if the question is hot based on the number of likes.
+        Determines if the question is hot based on the number of active likes.
         """
         return self.likes.count() > 10
 
@@ -166,6 +167,22 @@ class Question(Card):
         else:
             self.tags.remove(hot_tag)
 
+    @staticmethod
+    def dislike_count_by_id(qid):
+        """
+        Returns the number of dislikes for a question by its id.
+        """
+        return QuestionLike.objects.filter(question_id=qid, is_dislike=True).count()
+
+    @staticmethod
+    def real_likes_by_id(qid):
+        """
+        Returns the real likes (likes - dislikes) for a question by its id.
+        """
+        likes = QuestionLike.objects.filter(question_id=qid, is_dislike=False).count()
+        dislikes = QuestionLike.objects.filter(question_id=qid, is_dislike=True).count()
+        return likes - dislikes
+
 
 class AnswerLike(models.Model):
     """
@@ -175,7 +192,6 @@ class AnswerLike(models.Model):
     answer = models.ForeignKey("Answer", on_delete=models.CASCADE)
     is_dislike = models.BooleanField(default=False,
                                      help_text="True for dislike, False for like")
-    # TODO make sure to migrate
     class Meta:
         unique_together = ('user', 'answer')
 
@@ -197,6 +213,22 @@ class Answer(Card):
 
     def __str__(self):
         return self.content
+
+    @staticmethod
+    def dislike_count_by_id(aid):
+        """
+        Returns the number of dislikes for an answer by its id.
+        """
+        return AnswerLike.objects.filter(answer_id=aid, is_dislike=True).count()
+
+    @staticmethod
+    def real_likes_by_id(aid):
+        """
+        Returns the real likes (likes - dislikes) for an answer by its id.
+        """
+        likes = AnswerLike.objects.filter(answer_id=aid, is_dislike=False).count()
+        dislikes = AnswerLike.objects.filter(answer_id=aid, is_dislike=True).count()
+        return likes - dislikes
 
 
 class TagManager(models.Manager):

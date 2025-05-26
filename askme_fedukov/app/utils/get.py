@@ -8,7 +8,8 @@ from app.utils.feed import PaginatedFeed
 from app.utils.frontend_models import CardAnswer, CardExplore, BadgeTag, CardMain
 
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Q
+
 
 
 def get_answer_page_number_by_id(id: int, cards_per_page: int = 3):
@@ -30,8 +31,7 @@ def get_feed_explore(auth: Authentication, page_number: int, cards_per_page: int
     """
     Returns a paginator of CardExplore objects.
     """
-    questions = Question.objects.new().prefetch_related(
-        'tags').annotate(like_count=Count('likes'))
+    questions = Question.objects.new().prefetch_related('tags')
     cards = [
         CardExplore(
             auth,
@@ -42,7 +42,7 @@ def get_feed_explore(auth: Authentication, page_number: int, cards_per_page: int
             question.title,
             question.content,
             [BadgeTag(tag.name, tag.type) for tag in question.tags.all()],
-            question.like_count
+            Question.real_likes_by_id(question.id)
         )
         for question in questions
     ]
@@ -53,8 +53,7 @@ def get_feed_answers(auth: Authentication, question_id: int, page_number: int, c
     """
     Returns a paginator of CardAnswer objects filtered by question id.
     """
-    answers = Answer.objects.filter(question_id=question_id).prefetch_related(
-        'tags').annotate(like_count=Count('likes'))
+    answers = Answer.objects.filter(question_id=question_id).prefetch_related('tags')
     cards = [
         CardAnswer(
             auth,
@@ -63,7 +62,7 @@ def get_feed_answers(auth: Authentication, question_id: int, page_number: int, c
             get_userlike_status_for(auth, Answer, answer.id),
             answer.content,
             [BadgeTag(tag.name, tag.type) for tag in answer.tags.all()],
-            answer.like_count
+            Answer.real_likes_by_id(answer.id)
         )
         for answer in answers
     ]
@@ -84,7 +83,7 @@ def get_question_by_id(auth: Authentication, id: int):
             question.title,
             question.content,
             [BadgeTag(tag.name, tag.type) for tag in question.tags.all()],
-            question.likes.count()
+            Question.real_likes_by_id(question.id)
         )
         return card
     except Question.DoesNotExist:
@@ -96,8 +95,7 @@ def get_feed_hot(auth: Authentication, page_number: int, cards_per_page: int = 3
     Returns a paginator of CardExplore objects representing hot questions.
     """
 
-    questions = Question.objects.hot().prefetch_related(
-        'tags').annotate(like_count=Count('likes'))
+    questions = Question.objects.hot().prefetch_related('tags')
     cards = [
         CardExplore(
             auth,
@@ -108,7 +106,7 @@ def get_feed_hot(auth: Authentication, page_number: int, cards_per_page: int = 3
             question.title,
             question.content,
             [BadgeTag(tag.name, tag.type) for tag in question.tags.all()],
-            question.like_count
+            Question.real_likes_by_id(question.id)
         )
         for question in questions
     ]
@@ -120,8 +118,7 @@ def get_questions_by_tag(auth: Authentication, tag_name: str, page_number: int, 
     Returns a paginator of CardExplore objects filtered by tag name.
     """
 
-    questions = Question.objects.filter(tags__name=tag_name).prefetch_related(
-        'tags').annotate(like_count=Count('likes'))
+    questions = Question.objects.filter(tags__name=tag_name).prefetch_related('tags')
     cards = [
         CardExplore(
             auth,
@@ -132,7 +129,7 @@ def get_questions_by_tag(auth: Authentication, tag_name: str, page_number: int, 
             question.title,
             question.content,
             [BadgeTag(tag.name, tag.type) for tag in question.tags.all()],
-            question.like_count
+            Question.real_likes_by_id(question.id)
         )
         for question in questions
     ]
@@ -151,7 +148,10 @@ def get_userlike_status_for(auth: Authentication, model: Question | Answer, id: 
     like_mapping = {Question: QuestionLike, Answer: AnswerLike}
     model_like = like_mapping[model]
     try:
-        like = model_like.objects.filter(user=auth.profile, id=id)
+        like = model_like.objects.filter(
+            user=auth.profile,
+            **{f"{model.__name__.lower()}_id": id},
+        )
         if like.exists():
             like_instance = like.first()
             if like_instance.is_dislike:
@@ -162,3 +162,22 @@ def get_userlike_status_for(auth: Authentication, model: Question | Answer, id: 
     except model.DoesNotExist:
         return None
     
+def get_like_count_for(model: Question | Answer, id: int) -> int:
+    """
+    Returns the like count for a question or answer.
+
+    Returns:
+        int: The number of likes.
+    """
+    return model.real_likes_by_id(id) 
+
+def get_userlike_status_and_count_for(auth: Authentication, model: Question | Answer, id: int) -> tuple[int, int]:
+    """
+    Returns the like status and like count for a question or answer.
+
+    Returns:
+        tuple[int, int]: (like_status, like_count)
+    """
+    like_status = get_userlike_status_for(auth, model, id)
+    like_count = get_like_count_for(model, id)
+    return like_status, like_count

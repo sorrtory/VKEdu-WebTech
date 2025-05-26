@@ -1,10 +1,12 @@
 from django.shortcuts import render
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect
 
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
+
 
 from .utils.context import Context
 from .utils.authentication import Authentication
@@ -13,6 +15,9 @@ from .utils.form_checker import (CheckSettingsForm, CheckAnswerForm,
                                  CheckAskForm, CheckRegistrationForm)
 from .utils.get import (get_feed_explore, get_feed_answers, get_feed_hot,
                         get_question_by_id, get_questions_by_tag,)
+
+from .utils.set import Like
+
 
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
 
@@ -245,8 +250,35 @@ def profile(request, id):
             "ctx": Context(auth, feed, title), }
     return render(request, "profile.html", context=data)
 
-def like(request, model_type, id):
-    pass
+@require_POST
+@login_required
+def like(request):
+    """
+    Process like action for a model instance
+
+    Model types:
+    - "question" for Question model
+    - "answer" for Answer model
+    - "profile" for Profile model. NOTE: this is not implemented yet
+    """
+    auth = Authentication(request)
+
+    model_type = request.GET.get('model_type')
+    id = request.GET.get('id')
+    like = Like(
+        auth,
+        request,
+        model_type=model_type,
+        id=id
+    )
+    if (check:=like.check_request()) is not None:
+        return HttpResponseBadRequest(check)
+
+    result = like.process()
+    
+    return JsonResponse(result, status=200)
+
+
 
 class CustomLogoutView(LogoutView):
     def get_redirect_url(self):

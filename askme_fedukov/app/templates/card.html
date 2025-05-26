@@ -50,7 +50,7 @@
                     data-like-btn>
               {% bs_icon 'plus-circle'|add:card.BTN_LIKE_FILL extra_classes='text-'|add:card.BTN_LIKE_COLOR size=card.BTN_LIKE_SIZE %}
             </button>
-            <span class="text-center h{{ card.LIKE_VALUE_SIZE }} m-0 p-0 my-auto pb-1">
+            <span class="text-center h{{ card.LIKE_VALUE_SIZE }} m-0 p-0 my-auto pb-1" data-likes-value>
               {{ card.likes }}
             </span>
             <button class="border-0 bg-body p-0" {{ card.BTN_DISLIKE_DISABLED }} 

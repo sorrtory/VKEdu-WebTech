@@ -112,7 +112,7 @@ class CardBase:
 
         if self.like_status == 1:
             # Update like button
-            self.BTN_LIKE_DISABLED = "disabled"
+            self.BTN_LIKE_DISABLED = "data-isActive"
             self.BTN_LIKE_COLOR = "success"
             self.BTN_LIKE_FILL = "-fill"
             # Update dislike button
@@ -121,7 +121,7 @@ class CardBase:
             self.BTN_DISLIKE_FILL = ""
         elif self.like_status == -1:
             # Update dislike button
-            self.BTN_DISLIKE_DISABLED = "disabled"
+            self.BTN_DISLIKE_DISABLED = "data-isActive"
             self.BTN_DISLIKE_COLOR = "danger"
             self.BTN_DISLIKE_FILL = "-fill"
             # Update like button

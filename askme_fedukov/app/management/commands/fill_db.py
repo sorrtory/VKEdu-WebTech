@@ -99,10 +99,12 @@ class Command(BaseCommand):
             if random.choice([True, False]):
                 QuestionLike.objects.get_or_create(
                     user=random.choice(profiles),
-                    question=random.choice(questions)
+                    question=random.choice(questions),
+                    is_dislike=random.choice([True, False])
                 )
             else:
                 AnswerLike.objects.get_or_create(
                     user=random.choice(profiles),
-                    answer=random.choice(answers)
+                    answer=random.choice(answers),
+                    is_dislike=random.choice([True, False])
                 )
