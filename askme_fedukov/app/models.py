@@ -210,6 +210,8 @@ class Answer(Card):
                                    through='AnswerLike', blank=True, related_name='answer_likes')
     question = models.ForeignKey(Question,
                                  related_name='answers', on_delete=models.CASCADE)
+    is_correct = models.BooleanField(default=False,
+                                     help_text="True if the answer is correct, False otherwise")
 
     def __str__(self):
         return self.content

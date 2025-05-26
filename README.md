@@ -114,6 +114,7 @@ Or you can try to build it on your own
 - Creating dynamic layout with jinga is difficult
 - Bootsrap customization is a waste of time
 - Axios=isEven (maybe can be used in node.js or for progress bars)
+- Golang's "err"-check thing is a brilliant. Never skip this thing in other langs
 
 Django is really powerful when you need to create an app very fast.
 It has a lot of in-built options almost for any case.

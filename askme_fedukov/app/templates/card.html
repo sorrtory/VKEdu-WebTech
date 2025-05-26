@@ -118,9 +118,11 @@
           </div>
         </div>
         {% elif card.type == "answer" %}
-        <input type="checkbox" class="btn-check js-btn-correct" id="btn-check-outlined" autocomplete="off"
-          data-card-id="{{ card.id }}" data-answer-id="{{ card.answer_id }}">
-        <label class="btn btn-outline-primary mt-2" for="btn-check-outlined">Correct!</label><br>
+        <input type="checkbox" class="btn-check" id="btn-check-outlined-{{ card.id }}" autocomplete="off"
+          data-answer-id="{{ card.id }}" data-correct-btn 
+          {{ card.CHECKBOX_DISABLED|default:'' }} 
+          {% if card.is_correct %}checked{% endif %}>
+        <label class="btn btn-outline-primary mt-2" for="btn-check-outlined-{{ card.id }}">Correct!</label><br>
         {% else %}
         {% endif %}
       </div>

@@ -16,7 +16,7 @@ from .utils.form_checker import (CheckSettingsForm, CheckAnswerForm,
 from .utils.get import (get_feed_explore, get_feed_answers, get_feed_hot,
                         get_question_by_id, get_questions_by_tag,)
 
-from .utils.set import Like
+from .utils.set import Like, Correct
 
 
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
@@ -278,6 +278,20 @@ def like(request):
     
     return JsonResponse(result, status=200)
 
+@require_POST
+@login_required
+def correct(request):
+    """
+    Process marking an answer as a correct one
+    """
+    auth = Authentication(request)
+    id = request.GET.get('id')
+    correct = Correct(
+        auth,
+        request,
+        id
+    )
+    return JsonResponse(correct.process(), status=200)
 
 
 class CustomLogoutView(LogoutView):

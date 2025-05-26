@@ -2,7 +2,7 @@ from app.models import AnswerLike, QuestionLike, Answer, Question
 from app.utils.authentication import Authentication
 from django.http import HttpRequest
 
-from .get import get_userlike_status_and_count_for
+from .get import get_userlike_status_and_count_for, get_checkbox_status_for
 
 import json
 
@@ -132,3 +132,42 @@ class Like:
             return "Invalid like action. Must be 'put' or 'delete'."
 
         return None  # No errors, request is valid
+
+
+class Correct:
+
+    def __init__(self, auth: Authentication, request: HttpRequest, answer_id: int):
+        """
+        Initializes the Correct object with authentication and answer ID.
+        """
+        self.auth = auth
+        self.answer_id = answer_id
+
+    def process(self):
+        """
+        Marks the answer as correct.
+        """
+        if not self.auth.authenticated:
+            return {"status": "error", "message": "User must be authenticated."}
+
+        try:
+            answer = Answer.objects.get(id=self.answer_id)
+
+            if answer.question.author.id != self.auth.profile.id:
+                return {"status": "error", "message": "Correct can only be used by question owner."}
+            
+            if answer.author.id == self.auth.profile.id:
+                return {"status": "error", "message": "You can't mark your own answers as correct."}
+            
+            # Toggle the is_correct status
+            answer.is_correct = not answer.is_correct
+            message = "Answer marked as correct." if answer.is_correct else "Answer marked as incorrect."
+            answer.save()
+            return {
+                "status": "success",
+                "message": message,
+                "answer_id": self.answer_id,
+                "is_correct": answer.is_correct
+            }
+        except Answer.DoesNotExist:
+            return {"status": "error", "message": "Answer not found."}

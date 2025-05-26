@@ -66,7 +66,6 @@ function likeCard(like_type, like_action, card_id, card_type) {
                                 likeIcon.classList.add("bi-plus-circle-fill", "text-success");
                                 likeIcon.classList.remove("bi-plus-circle", "text-muted");
                             }
-                            dislikeBtn.classList.add("text-muted");
                             if (dislikeIcon) {
                                 dislikeIcon.classList.add("bi-dash-circle", "text-muted");
                                 dislikeIcon.classList.remove("bi-dash-circle-fill", "text-danger");
@@ -79,25 +78,22 @@ function likeCard(like_type, like_action, card_id, card_type) {
                                 dislikeIcon.classList.add("bi-dash-circle-fill", "text-danger");
                                 dislikeIcon.classList.remove("bi-dash-circle", "text-muted");
                             }
-                            likeBtn.classList.add("text-muted");
                             if (likeIcon) {
                                 likeIcon.classList.add("bi-plus-circle", "text-muted");
                                 likeIcon.classList.remove("bi-plus-circle-fill", "text-success");
                             }
                         } else {
                             // Neutral
-                            likeBtn.classList.add("text-muted");
-                            dislikeBtn.classList.add("text-muted");
                             if (likeIcon) {
-                                likeIcon.classList.add("bi-plus-circle", "text-muted");
+                                likeIcon.classList.add("bi-plus-circle");
                                 likeIcon.classList.remove("bi-plus-circle-fill", "text-success");
                             }
                             if (dislikeIcon) {
-                                dislikeIcon.classList.add("bi-dash-circle", "text-muted");
+                                dislikeIcon.classList.add("bi-dash-circle");
                                 dislikeIcon.classList.remove("bi-dash-circle-fill", "text-danger");
                             }
                         }
-                        // Optionally update likes count
+                        // Update likes count
                         const likesLabel = likeContainer.querySelector("[data-likes-value]");
                         if (likesLabel && typeof response.data.like_count !== "undefined") {
                             likesLabel.textContent = response.data.like_count;
@@ -136,6 +132,31 @@ function main() {
             likeCard("dislike", getActonForActive(btn.currentTarget), card_id, card_type);
         });
     })
+
+    // Handle checkboxes for answers
+    document.querySelectorAll("input[data-correct-btn ]").forEach(function (checkbox) {
+        checkbox.addEventListener("change", function (event) {
+            const isChecked = event.currentTarget.checked;
+            const answerID = event.currentTarget.getAttribute("data-answer-id");
+
+            axios.post('/correct/', {
+                is_correct: isChecked
+            }, {
+                params: {
+                    id: answerID,
+                }
+            })
+                .then(function (response) {
+                    console.log('Answer marked as correct:', response.data);
+                })
+                .catch(function (error) {
+                    console.error('Error marking answer as correct:', error);
+                });
+        });
+    })
+    console.log("Ajax script loaded successfully");
+
+    
 
 }
 

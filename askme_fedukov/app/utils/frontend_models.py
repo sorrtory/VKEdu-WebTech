@@ -117,7 +117,7 @@ class CardBase:
             self.BTN_LIKE_FILL = "-fill"
             # Update dislike button
             self.BTN_DISLIKE_DISABLED = None
-            self.BTN_DISLIKE_COLOR = ""
+            self.BTN_DISLIKE_COLOR = "muted"
             self.BTN_DISLIKE_FILL = ""
         elif self.like_status == -1:
             # Update dislike button
@@ -126,7 +126,7 @@ class CardBase:
             self.BTN_DISLIKE_FILL = "-fill"
             # Update like button
             self.BTN_LIKE_DISABLED = None
-            self.BTN_LIKE_COLOR = ""
+            self.BTN_LIKE_COLOR = "muted"
             self.BTN_LIKE_FILL = ""
         else:
             # User has not liked or disliked the card
@@ -190,6 +190,13 @@ class CardAnswer(CardBase):
     Frontend class for answer cards.
     """
 
+    def is_checkbox_disabled(self):
+        """
+        Check if the checkbox for marking the answer as correct is disabled.
+        It is disabled if the user is not authenticated or if the card belongs to the user.
+        """
+        return self.is_own_card() or (not self.auth.authenticated)
+
     def __init__(
         self,
         auth: Authentication,
@@ -198,12 +205,16 @@ class CardAnswer(CardBase):
         like_status: int,
         text: str = None,
         tags: list = None,
-        likes: int = 0
+        likes: int = 0,
+        is_correct=False, 
+        checkbox_disabled: bool = True
     ):
         super().__init__(auth, "answer", id, author, like_status, text=text, tags=tags, likes=likes)
         self.BTN_LIKE_SIZE = "1.6em"
         self.BTN_LIKE_COL = "col-5 col-sm-4"
         self.BTN_LIKE_WRAP = ""
+        self.CHECKBOX_DISABLED = "disabled" if self.is_checkbox_disabled() or checkbox_disabled else None
+        self.is_correct = is_correct  # This is used to mark the correct answer in the UI
 
 
 class ProfileCard:

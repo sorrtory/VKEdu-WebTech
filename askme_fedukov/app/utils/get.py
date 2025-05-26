@@ -1,6 +1,8 @@
 # This file contains utility functions,
 # which are used to retrieve data from the database
 
+# TODO: Split this fucking horror into classes. I have no idea what's going on here.
+
 from app.models import Answer, Question, AnswerLike, QuestionLike
 
 from app.utils.authentication import Authentication
@@ -8,8 +10,6 @@ from app.utils.feed import PaginatedFeed
 from app.utils.frontend_models import CardAnswer, CardExplore, BadgeTag, CardMain
 
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
-
 
 
 def get_answer_page_number_by_id(id: int, cards_per_page: int = 3):
@@ -62,7 +62,9 @@ def get_feed_answers(auth: Authentication, question_id: int, page_number: int, c
             get_userlike_status_for(auth, Answer, answer.id),
             answer.content,
             [BadgeTag(tag.name, tag.type) for tag in answer.tags.all()],
-            Answer.real_likes_by_id(answer.id)
+            Answer.real_likes_by_id(answer.id),
+            answer.is_correct,
+            not get_checkbox_status_for(auth, answer.id)
         )
         for answer in answers
     ]
@@ -181,3 +183,17 @@ def get_userlike_status_and_count_for(auth: Authentication, model: Question | An
     like_status = get_userlike_status_for(auth, model, id)
     like_count = get_like_count_for(model, id)
     return like_status, like_count
+
+
+def get_checkbox_status_for(auth: Authentication, answer_id: int) -> bool:
+    """
+    Returns the checkbox status for the answer.
+
+    Returns:
+        bool: True if the viewer is the author of the answer's question, False otherwise.
+    """
+    answ = Answer.objects.filter(id=answer_id).first()
+    if answ:
+        return answ.question.author == auth.profile
+    else:
+        return None
