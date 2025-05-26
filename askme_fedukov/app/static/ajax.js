@@ -147,16 +147,13 @@ function main() {
                 }
             })
                 .then(function (response) {
-                    console.log('Answer marked as correct:', response.data);
+                    // console.log('Answer marked as correct:', response.data);
                 })
                 .catch(function (error) {
-                    console.error('Error marking answer as correct:', error);
+                    // console.error('Error marking answer as correct:', error);
                 });
         });
     })
-    console.log("Ajax script loaded successfully");
-
-    
 
 }
 

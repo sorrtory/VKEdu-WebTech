@@ -15,11 +15,9 @@ from .utils.form_checker import (CheckSettingsForm, CheckAnswerForm,
                                  CheckAskForm, CheckRegistrationForm)
 from .utils.get import (get_feed_explore, get_feed_answers, get_feed_hot,
                         get_question_by_id, get_questions_by_tag,)
-
 from .utils.set import Like, Correct
-
-
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
+from .utils import redirect_to
 
 
 # Layout controls for templates
@@ -130,6 +128,29 @@ def tag(request, name):
     return render(request, "tag.html", context=data)
 
 
+@require_POST
+@login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
+def ask_redirect(request):
+    """
+    Redirect to ask page with content filled into the form
+    """
+    # Pass params to ask page
+    params = {}
+    continue_val = request.GET.get('continue', None)
+    content_val = request.POST.get('content', None)
+    title_val = request.POST.get('title', None)
+    if continue_val is not None:
+        params['continue'] = continue_val
+    if content_val is not None:
+        params['content'] = content_val
+    if title_val is not None:
+        params['title'] = title_val
+
+    # Redirect to ask page
+    print(f"Redirecting to ask with params: ", redirect_to('ask', params=params))
+    return redirect(redirect_to('ask', params=params))
+
+
 @login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
 def ask(request):
     """
@@ -140,7 +161,9 @@ def ask(request):
     auth = Authentication(request)
 
     # Create form for asking a question
-    form = AskForm(request.POST or None, author=auth.profile)
+    form = AskForm(request.POST or None, author=auth.profile,
+                   content=request.GET.get('content', None),
+                   title=request.GET.get('title', None))
     form_checker = CheckAskForm(request, form)
 
     # Redirect if it is a successful POST request
@@ -250,6 +273,7 @@ def profile(request, id):
             "ctx": Context(auth, feed, title), }
     return render(request, "profile.html", context=data)
 
+
 @require_POST
 @login_required
 def like(request):
@@ -271,12 +295,10 @@ def like(request):
         model_type=model_type,
         id=id
     )
-    if (check:=like.check_request()) is not None:
+    if (check := like.check_request()) is not None:
         return HttpResponseBadRequest(check)
+    return JsonResponse(like.process(), status=200)
 
-    result = like.process()
-    
-    return JsonResponse(result, status=200)
 
 @require_POST
 @login_required

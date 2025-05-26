@@ -47,11 +47,34 @@
         <h1 class="">AskPupkin</h1>
       </a>
       <div class="col-6">
-        <form class="container d-flex p-0 m-0" role="search">
-          <input class="form-control me-2 col" type="search" placeholder="Search" aria-label="Search">
+        <form class="container d-flex p-0 m-0" role="ask" action="{% url 'ask_redirect' %}" method="post">
+          {% csrf_token %}
+          <input name="title"
+                 class="form-control me-2 col"
+                 type="search"
+                 placeholder="Ask your question"
+                 aria-label="ask"
+                 placeholder="Ask your question"
+                 data-bs-toggle="tooltip"
+                 data-bs-placement="bottom"
+                 title="Ask your question"
+                 onfocus="this.placeholder=''"
+                 onblur="this.placeholder=window.innerWidth < 576 ? 'Ask?' : 'Ask your question'">
           <button class="btn btn-success col-4 col-sm-3 col-md-2" type="submit">ASK!</button>
         </form>
       </div>
+
+      <script>
+        // Set dynamic placeholder on load and resize for sm- screens
+        function setAskPlaceholder() {
+          const input = document.querySelector('input[aria-label="ask"]');
+          if (!input) return;
+          input.placeholder = window.innerWidth < 576 ? 'Ask?' : 'Ask your question';
+        }
+        window.addEventListener('DOMContentLoaded', setAskPlaceholder);
+        window.addEventListener('resize', setAskPlaceholder);
+      </script>
+      
       {% if ctx.auth.authenticated %}
       <!-- Authenticated -->
       <div class="ms-auto me-1 ps-sm-2 d-flex align-items-center col-sm-3">
