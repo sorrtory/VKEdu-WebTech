@@ -8,6 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Cleaning up the database...")
 
+        # Drop all tables in the public schema
         with connection.cursor() as cursor:
             cursor.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public';")
             tables = cursor.fetchall()

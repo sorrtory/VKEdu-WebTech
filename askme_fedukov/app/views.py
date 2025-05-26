@@ -1,18 +1,23 @@
 from django.shortcuts import render
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect
 
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
+
 
 from .utils.context import Context
 from .utils.authentication import Authentication
-from .utils.feed import PaginatedFeed, ProfileFeed
+from .utils.feed import ProfileFeed
 from .utils.form_checker import (CheckSettingsForm, CheckAnswerForm,
                                  CheckAskForm, CheckRegistrationForm)
-
+from .utils.get import (get_feed_explore, get_feed_answers, get_feed_hot,
+                        get_question_by_id, get_questions_by_tag,)
+from .utils.set import Like, Correct
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
+from .utils import redirect_to
 
 
 # Layout controls for templates
@@ -31,13 +36,12 @@ def index(request):
     """
     Page with recent questions
     """
+    # Check if user is authenticated
+    auth = Authentication(request)
 
     # Create pages of new questions
     page_number = request.GET.get('page', 1)
-    feed = PaginatedFeed.get_explore(page_number)
-
-    # Check if user is authenticated
-    auth = Authentication(request)
+    feed = get_feed_explore(auth, page_number)
 
     # Create context for the page
     data = {"ctx": Context(auth, feed, "AskPupkin")}
@@ -47,15 +51,15 @@ def index(request):
 
 def hot(request):
     """
-    Almost like /tag/hot
+    Just like /tag/hot, but has a different template.
     """
-
-    # Create pages of hot questions
-    page_number = request.GET.get('page', 1)
-    feed = PaginatedFeed.get_hot(page_number)
 
     # Check if user is authenticated
     auth = Authentication(request)
+
+    # Create pages of hot questions
+    page_number = request.GET.get('page', 1)
+    feed = get_feed_hot(auth, page_number)
 
     # Create context for the page
     data = {"ctx": Context(auth, feed, title="Hot questions")}
@@ -69,13 +73,13 @@ def question(request, id):
     It also allows to add a new answer.
     """
 
-    # Get question by id
-    main = PaginatedFeed.get_question(id)
-    if main is None:
-        raise Http404("Question not found")
-
     # Check if user is authenticated
     auth = Authentication(request)
+
+    # Get question by id
+    main = get_question_by_id(auth, id)
+    if main is None:
+        raise Http404("Question not found")
 
     # Create answer form
     form = AnswerForm(request.POST or None,
@@ -92,7 +96,7 @@ def question(request, id):
 
     # Create pages of answers to the question
     page_number = request.GET.get('page', 1)
-    answers = PaginatedFeed.get_answers(id, page_number)
+    answers = get_feed_answers(auth, id, page_number)
 
     # Create context for the page
     data = {
@@ -100,7 +104,7 @@ def question(request, id):
         "answer_form": form,
         "request_path": request.path,
     }
-    data["ctx"].main = main
+    data["ctx"].main = main  # Question object
 
     return render(request, "question.html", context=data)
 
@@ -110,18 +114,41 @@ def tag(request, name):
     Page with questions by tag name
     """
 
-    # Create pages of questions by tag
-    page_number = request.GET.get('page', 1)
-    feed = PaginatedFeed.get_questions_by_tag(name, page_number)
-
     # Check if user is authenticated
     auth = Authentication(request)
+
+    # Create pages of questions by tag
+    page_number = request.GET.get('page', 1)
+    feed = get_questions_by_tag(auth, name, page_number)
 
     # Create context for the page
     data = {"ctx": Context(auth, feed, title=f'"{name}" questions')}
     data["ctx"].tag_name = name
 
     return render(request, "tag.html", context=data)
+
+
+@require_POST
+@login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
+def ask_redirect(request):
+    """
+    Redirect to ask page with content filled into the form
+    """
+    # Pass params to ask page
+    params = {}
+    continue_val = request.GET.get('continue', None)
+    content_val = request.POST.get('content', None)
+    title_val = request.POST.get('title', None)
+    if continue_val is not None:
+        params['continue'] = continue_val
+    if content_val is not None:
+        params['content'] = content_val
+    if title_val is not None:
+        params['title'] = title_val
+
+    # Redirect to ask page
+    print(f"Redirecting to ask with params: ", redirect_to('ask', params=params))
+    return redirect(redirect_to('ask', params=params))
 
 
 @login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
@@ -134,7 +161,9 @@ def ask(request):
     auth = Authentication(request)
 
     # Create form for asking a question
-    form = AskForm(request.POST or None, author=auth.profile)
+    form = AskForm(request.POST or None, author=auth.profile,
+                   content=request.GET.get('content', None),
+                   title=request.GET.get('title', None))
     form_checker = CheckAskForm(request, form)
 
     # Redirect if it is a successful POST request
@@ -236,13 +265,55 @@ def profile(request, id):
         title = "My profile"
 
     # Get profile by id
-    feed = ProfileFeed(id)
+    feed = ProfileFeed(auth, id)
     if feed.profile is None:
         raise Http404("Profile not found")
 
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
             "ctx": Context(auth, feed, title), }
     return render(request, "profile.html", context=data)
+
+
+@require_POST
+@login_required
+def like(request):
+    """
+    Process like action for a model instance
+
+    Model types:
+    - "question" for Question model
+    - "answer" for Answer model
+    - "profile" for Profile model. NOTE: this is not implemented yet
+    """
+    auth = Authentication(request)
+
+    model_type = request.GET.get('model_type')
+    id = request.GET.get('id')
+    like = Like(
+        auth,
+        request,
+        model_type=model_type,
+        id=id
+    )
+    if (check := like.check_request()) is not None:
+        return HttpResponseBadRequest(check)
+    return JsonResponse(like.process(), status=200)
+
+
+@require_POST
+@login_required
+def correct(request):
+    """
+    Process marking an answer as a correct one
+    """
+    auth = Authentication(request)
+    id = request.GET.get('id')
+    correct = Correct(
+        auth,
+        request,
+        id
+    )
+    return JsonResponse(correct.process(), status=200)
 
 
 class CustomLogoutView(LogoutView):

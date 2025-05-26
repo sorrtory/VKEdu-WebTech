@@ -154,12 +154,18 @@ class AskForm(forms.ModelForm):
     """
     This form is used for asking a question.
     """
-    def __init__(self, *args, author=None, **kwargs):
+    def __init__(self, *args, author=None, content=None, title=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.author = author
         for field_name, field in self.fields.items():
             if isinstance(field.widget, (forms.TextInput, forms.Textarea)):
                 field.widget.attrs.setdefault('style', 'width: 100%; box-sizing: border-box;')
+
+        # Set initial values if provided
+        if content:
+            self.fields['content'].initial = content
+        if title:
+            self.fields['title'].initial = title
 
     class Meta:
         model = Question

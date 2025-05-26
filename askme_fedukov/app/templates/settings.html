@@ -2,7 +2,9 @@
 
 {% block content %}
 <!-- Settings -->
-<h2 class="row mb-3 d-block">Settings: <span>{{ ctx.auth.profile.user.username }}</span></h2>
+<header class="mb-3">
+    <h2 class="me-2 me-sm-4 text-break">Settings: <span class="fw-bold">{{ ctx.auth.profile.user.username }}</span></h2>
+</header>
 <div class="row">
     <form class="container needs-align" id="loginForm" method="post" action="" enctype="multipart/form-data">
         {% csrf_token %}

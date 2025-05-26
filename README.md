@@ -44,9 +44,9 @@ Or you can try to build it on your own
 5. Set up the database
 
     ```sh
-    docker compose up -d --build 'db'
-    python askme_fedukov/manage.py remigrate
-    python askme_fedukov/manage.py fill_db 50
+    docker compose up -d --build 'db'          # Launch the database 
+    python askme_fedukov/manage.py remigrate   # Recreate tables (drop+make)
+    python askme_fedukov/manage.py fill_db 50  # Add mock data with <ratio>
     ```
 
 6. Launch the server
@@ -59,46 +59,96 @@ Or you can try to build it on your own
 
 ## Status
 
-1. Layout
+### 1. Layout
 
-2. Routing:
+[Reference](https://github.com/ziontab/tp-tasks/blob/master/files/markdown/task-1.md#6-%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D0%BD%D1%8B%D0%B9-%D0%B2%D0%BD%D0%B5%D1%88%D0%BD%D0%B8%D0%B9-%D0%B2%D0%B8%D0%B4-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86)
 
-    | Page                              | URL                                    | Meaning                                   |
-    |-----------------------------------|----------------------------------------|-------------------------------------------|
-    | Index page                        | <http://127.0.0.1:8000/>              | список новых вопросов (главная страница)  |
-    | Hot questions page                | <http://127.0.0.1:8000/hot/>          | список “лучших” вопросов                  |
-    | Tag page                          | <http://127.0.0.1:8000/tag/blablabla/> | список вопросов по тэгу                   |
-    | Question page                     | <http://127.0.0.1:8000/question/5/>   | страница одного вопроса со списком ответов |
-    | Ask page                          | <http://127.0.0.1:8000/ask/>          | форма создания вопроса                   |
-    | Login page                        | <http://127.0.0.1:8000/login/>        | форм логина                              |
-    | Register page                     | <http://127.0.0.1:8000/signup/>       | форма регистрации                        |
-    | Settings page                     | <http://127.0.0.1:8000/settings/>     | настройки                                |
-    | Profile page                     | <http://127.0.0.1:8000/profile/0>      | публичная страница пользователя                                |
+### 2. Routing
 
-3. Database:
+Some examples of implemented resources:
 
-    **Fill with test data**
+| Page                              | URL                                    | Meaning                                    |
+|-----------------------------------|----------------------------------------|--------------------------------------------|
+| Index page                        | <http://127.0.0.1:8000/>               | список новых вопросов (главная страница)   |
+| Hot questions page                | <http://127.0.0.1:8000/hot/>           | список “лучших” вопросов                   |
+| Tag page                          | <http://127.0.0.1:8000/tag/blablabla/> | список вопросов по тэгу                    |
+| Question page                     | <http://127.0.0.1:8000/question/5/>    | страница одного вопроса со списком ответов |
+| Ask page                          | <http://127.0.0.1:8000/ask/>           | форма создания вопроса                     |
+| Login page                        | <http://127.0.0.1:8000/login/>         | форм логина                                |
+| Register page                     | <http://127.0.0.1:8000/signup/>        | форма регистрации                          |
+| Settings page                     | <http://127.0.0.1:8000/settings/>      | настройки                                  |
+| Profile page                      | <http://127.0.0.1:8000/profile/0/>     | публичная страница пользователя            |
 
-    ```sh
-    # Before filling, you\'re likely to migrate with
-    # python manage.py remigrate
-    # Which cleans up db -> makemigrations -> migrate
-    
-    python manage.py fill_db [ratio]
-    # To remove all data use this
-    python manage.py flush
-    ```
+### 3. Database
 
-    Where `ratio` is the fill factor for entities. After executing the command, the database should be populated with the following:
+[Fill it](askme_fedukov/app/management/commands/fill_db.py) with test data using
 
-    - Users: equal to `ratio`
-    - Questions: `ratio * 10`
-    - Answers: `ratio * 100`
-    - Tags: `ratio`
-    - User ratings: `ratio * 200`
-4. Forms
-    - Login
-    - Register
-    - Profile settings
-    - New question
-    - New answer
+```sh
+# Before filling, you're likely to migrate with 
+# python manage.py remigrate
+# That'll DROP ALL public tables -> makemigrations -> migrate
+
+python manage.py fill_db [ratio]
+
+# To remove all data use django's flush
+python manage.py flush
+```
+
+Where `[ratio]` is the fill factor for entities. After executing the command, the database should be populated with the following:
+
+- Users: `ratio`
+- Questions: `ratio * 10`
+- Answers: `ratio * 100`
+- Tags: `ratio`
+- Likes: `ratio * 200`
+
+### 4. Forms
+
+Djano's [forms](askme_fedukov/app/forms.py) with my [form checker](/askme_fedukov/app/utils/form_checker.py)
+
+- Login
+- Register
+- Profile settings
+- New question
+- New answer
+
+### 5. Ajax
+
+> Django REST Framework is nice but I realised it too late.
+
+- Likes. User can't like himself
+- Correct. User can't like
+
+Unauthorized user can't see this features,  actually
+
+### 6. WSGI
+
+...
+
+## Conclusion
+
+### Outline
+
+Django is really powerful when you need to create the app very fast.
+It has a lot of in-built options almost for any case.
+
+But is scales like shit. I was lost trying to organize it properly.
+
+So, to sum up, if you need something simple the formula is `bootsrap+django+djangoREST`.
+Otherwise you **don't need** to chose this framework.
+
+### Takes
+
+#### This project
+
+- Customizing Django is reinventing the wheel
+- Customizing Bootsrap is a waste of time
+- Creating class layer for frontend is overengineering (only in Django?)
+- Creating dynamic layout with jinga is difficult
+- Axios=isEven (although can be used in node.js and for progress bars)
+
+#### General web dev
+
+- Creating several types for one logic (AnswerLike, QuestionLike) is pointless
+- Golang's "err"-check thing is a brilliant. Never skip this thing in other langs
+- Format code as you write/generate it (so formatter won't fuck jinja's embeds)

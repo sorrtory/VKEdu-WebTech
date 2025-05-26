@@ -1,12 +1,16 @@
 <!-- CARD -->
-<article class="card border border-{{ card.CARD_BORDER|default:'' }} d-flex flex-row justify-content-start"
-  id="answer-{{ card.id }}">
+{% load bootstrap_icons %}
+<article class="card border border-{{ card.CARD_BORDER|default:'' }} 
+                d-flex flex-row justify-content-start" id="answer-{{ card.id }}">
   <div class="w-100">
     <div class="card-body container">
+      <!-- First row -->
       <div class="row mb-1">
         <div class="col-5 col-sm-4 mb-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} 
-                    mb-sm-1 d-flex justify-content-center h-100">
-          <img src="{{ card.author.avatar.url }}" class="img-fluid img-thumbnail border-2" alt="Asker avatar" />
+                    d-flex justify-content-center h-100 mx-auto mx-sm-0">
+          <a href="{% url 'profile' card.author.user.id %}" class="text-decoration-none">
+            <img src="{{ card.author.avatar.url }}" class="img-fluid img-thumbnail border-2" alt="Asker avatar" />
+          </a>
         </div>
         <div class="col">
           <a class="card-title h5 text-break" href="{% url 'question' card.id %}">
@@ -34,50 +38,38 @@
         </div>
       </div>
 
+      <!-- Second row -->
       <div class="row flex-nowrap">
-        {% load bootstrap_icons %}
-        {% if card.type == "main" %}
-        <div class="col-2 col-sm-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
-          <!-- Large buttons -->
-          <div
-            class="col-1 d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap flex-sm-nowrap">
-            <button class="border-0 bg-body p-0">
-              {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.75em' %}
+        <!-- Like buttons -->
+        <div class="{{ card.BTN_LIKE_COL }} col-md-{{ card.AVATAR_SIZE|default:'2' }} 
+                  d-flex justify-content-center mx-auto mx-sm-0" data-card-id="{{ card.id }}"
+          data-card-type="{{ card.type }}" data-like-container>
+          <div class="d-flex gap-2 justify-content-center align-items-center 
+                      align-self-end px-3 px-md-0 {{ card.BTN_LIKE_WRAP }}">
+            <button class="border-0 bg-body p-0" {{ card.BTN_LIKE_DISABLED }} data-like-btn>
+              <i class="bi bi-plus-circle{{ card.BTN_LIKE_FILL }} text-{{ card.BTN_LIKE_COLOR }}"
+                style="font-size: {{ card.BTN_LIKE_SIZE }};"></i>
             </button>
-            <span class="text-center h3 m-0 p-0 my-auto pb-1">{{ card.likes }}</span>
-            <button class="border-0 bg-body p-0">
-              {% bs_icon 'dash-circle' size='1.75em' %}
+            <span class="text-center h{{ card.LIKE_VALUE_SIZE }} m-0 p-0 my-auto pb-1" data-likes-value>
+              {{ card.likes }}
+            </span>
+            <button class="border-0 bg-body p-0" {{ card.BTN_DISLIKE_DISABLED }} data-dislike-btn>
+              <i class="bi bi-dash-circle{{ card.BTN_DISLIKE_FILL }} text-{{ card.BTN_DISLIKE_COLOR }}"
+                style="font-size: {{ card.BTN_LIKE_SIZE }};"></i>
             </button>
-          </div>
-        </div>
-        {% elif card.type == "answer" %}
-        <div class="col-5 col-sm-4 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
-          <div class="d-flex gap-2 justify-content-center align-items-center align-self-end">
-            <button class="border-0 bg-body p-0">
-              {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.6em' %}
-            </button>
-            <span class="text-center h5 m-0 p-0 my-auto pb-1">{{ card.likes }}</span>
-            <button class="border-0 bg-body p-0">
-              {% bs_icon 'dash-circle' size='1.6em' %}
-            </button>
-          </div>
-        </div>
-        {% elif card.type == "explore" %}
-        <div class="col-2 col-md-{{ card.AVATAR_SIZE|default:'2' }} d-flex justify-content-center">
-          <!-- Usual buttons -->
-          <div
-            class="d-flex gap-2 justify-content-center align-items-center align-self-end flex-wrap px-3 px-md-0 flex-md-nowrap">
-            <button class="border-0 bg-body p-0">
-              {% bs_icon 'plus-circle-fill' extra_classes='text-success' size='1.5em' %}
-            </button>
-            <span class="text-center h5 m-0 p-0 my-auto pb-1">{{ card.likes }}</span>
-            <button class="border-0 bg-body p-0">
-              {% bs_icon 'dash-circle' size='1.5em' %}
-            </button>
+            <style>
+              button[data-like-btn]:focus, i:focus,
+              button[data-dislike-btn]:focus {
+                outline: none !important;
+                box-shadow: none !important;
+                border: none !important;
+              }
+            </style>
           </div>
         </div>
 
-        {% endif %}
+        <!-- Card text -->
+        <!-- text for answer is in the header, since it has no title -->
         {% if card.type != "answer" %}
         <div class="col">
           <p class="card-text text-wrap">
@@ -87,7 +79,8 @@
         {% endif %}
       </div>
 
-      <div class="col">
+      <!-- Third row -->
+      <div class="row p-0 m-0">
         {% if card.type == "explore" %}
         <div class="container-fluid p-0 m-0 d-flex bg-body">
           <a href="{% url 'question' card.id %}#answer_form" class="align-self-end flex-nowrap text-nowrap me-2">
@@ -99,7 +92,9 @@
             <div class="gap-3 align-items-start">
               {% if card.tags %}
               {% for tag in card.tags %}
-              <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
+              <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">
+                {{ tag.name }}
+              </a>
               {% endfor %}
               {% else %}
               <span class="text-muted">No tags</span>
@@ -113,7 +108,9 @@
           <div class="">
             {% if card.tags %}
             {% for tag in card.tags %}
-            <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">{{ tag.name }}</a>
+            <a href="{% url 'tag' tag.name %}" class="badge rounded-pill bg-{{ tag.bs_type }}">
+              {{ tag.name }}
+            </a>
             {% endfor %}
             {% else %}
             <span class="text-muted text-nowrap">No tags</span>
@@ -121,8 +118,11 @@
           </div>
         </div>
         {% elif card.type == "answer" %}
-        <input type="checkbox" class="btn-check" id="btn-check-outlined" autocomplete="off">
-        <label class="btn btn-outline-primary mt-2" for="btn-check-outlined">Correct!</label><br>
+        <input type="checkbox" class="btn-check" id="btn-check-outlined-{{ card.id }}" autocomplete="off"
+          data-answer-id="{{ card.id }}" data-correct-btn 
+          {{ card.CHECKBOX_DISABLED|default:'' }} 
+          {% if card.is_correct %}checked{% endif %}>
+        <label class="btn btn-outline-primary mt-2" for="btn-check-outlined-{{ card.id }}">Correct!</label><br>
         {% else %}
         {% endif %}
       </div>

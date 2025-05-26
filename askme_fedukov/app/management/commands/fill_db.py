@@ -19,7 +19,7 @@ class Command(BaseCommand):
         ratio = options['ratio']
         self.stdout.write(f'Starting to fill the database with a ratio of {ratio}')
 
-        with tqdm(total=5, desc="Filling DB", unit="step") as pbar:
+        with tqdm(total=6, desc="Filling DB", unit="step") as pbar:
             self.create_test_user()
             pbar.update(1)
 
@@ -33,17 +33,20 @@ class Command(BaseCommand):
             pbar.update(1)
 
             self.create_answers(ratio)
-            self.create_likes(ratio)
             pbar.update(1)
 
+            self.create_likes(ratio)
+            pbar.update(1)
         self.stdout.write(self.style.SUCCESS(f'Successfully filled the database with test data'))
 
     def create_test_user(self):
         test_user, _ = User.objects.get_or_create(
             username='testuser',
-            defaults={'email': 'testuser@example.com'}
+            defaults={'email': 'testuser@example.com', 'is_superuser': True, 'is_staff': True}
         )
         test_user.set_password('testpassword')
+        test_user.is_superuser = True
+        test_user.is_staff = True
         test_user.save()
 
         # Create a test profile for the test user
@@ -85,7 +88,8 @@ class Command(BaseCommand):
                 author=random.choice(profiles),
                 question=random.choice(questions),
                 content=fake.text(),
-                created_at=now()
+                created_at=now(),
+                is_correct=random.random() < 0.1  # 1/10 chance to be correct
             )
 
     def create_likes(self, ratio):
@@ -95,12 +99,21 @@ class Command(BaseCommand):
 
         for _ in range(ratio * 200):
             if random.choice([True, False]):
-                QuestionLike.objects.get_or_create(
-                    user=random.choice(profiles),
-                    question=random.choice(questions)
-                )
+                user = random.choice(profiles)
+                question = random.choice(questions)
+                if not QuestionLike.objects.filter(user=user, question=question).exists():
+                    QuestionLike.objects.create(
+                        user=user,
+                        question=question,
+                        is_dislike=random.choice([True, False])
+                    )
             else:
-                AnswerLike.objects.get_or_create(
-                    user=random.choice(profiles),
-                    answer=random.choice(answers)
-                )
+                user = random.choice(profiles)
+                answer = random.choice(answers)
+                if not AnswerLike.objects.filter(user=user, answer=answer).exists():
+                    AnswerLike.objects.create(
+                        user=user,
+                        answer=answer,
+                        is_dislike=random.choice([True, False])
+                    )
+

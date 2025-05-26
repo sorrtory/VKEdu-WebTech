@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+# TODO: move get and set from the structure of the models to the managers
+
 class ProfileManager(models.Manager):
     """
     This is the custom manager for the Profile model.
@@ -35,17 +37,19 @@ class ProfileManager(models.Manager):
             user.set_password(password)
             user.save()
             if avatar:
-                profile, created = self.get_or_create(user=user, defaults={'avatar': avatar})
+                profile, created = self.get_or_create(
+                    user=user, defaults={'avatar': avatar})
             else:
                 profile, created = self.get_or_create(user=user)
             if not created:
                 return None
             return profile
         return None
-    
+
 
 def user_avatar_path(instance, filename):
     return f'avatars/user_{instance.user.id}/{filename}'
+
 
 class Profile(models.Model):  # Can also derive from AbstractBaseUser
     """
@@ -63,7 +67,7 @@ class Profile(models.Model):  # Can also derive from AbstractBaseUser
 
     def __str__(self):
         return self.user.username
-    
+
     @property
     def tags(self):
         """
@@ -96,6 +100,8 @@ class QuestionLike(models.Model):
     """
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     question = models.ForeignKey("Question", on_delete=models.CASCADE)
+    is_dislike = models.BooleanField(default=False,
+                                     help_text="True for dislike, False for like")
 
     class Meta:
         unique_together = ('user', 'question')
@@ -131,7 +137,6 @@ class Question(Card):
     This model represents a question card. 
     """
     objects = QuestionManager()
-
     # title         from Card base class
     # content       from Card base class
     # created_at    from Card base class
@@ -147,7 +152,7 @@ class Question(Card):
 
     def is_hot(self):
         """
-        Determines if the question is hot based on the number of likes.
+        Determines if the question is hot based on the number of active likes.
         """
         return self.likes.count() > 10
 
@@ -162,6 +167,22 @@ class Question(Card):
         else:
             self.tags.remove(hot_tag)
 
+    @staticmethod
+    def dislike_count_by_id(qid):
+        """
+        Returns the number of dislikes for a question by its id.
+        """
+        return QuestionLike.objects.filter(question_id=qid, is_dislike=True).count()
+
+    @staticmethod
+    def real_likes_by_id(qid):
+        """
+        Returns the real likes (likes - dislikes) for a question by its id.
+        """
+        likes = QuestionLike.objects.filter(question_id=qid, is_dislike=False).count()
+        dislikes = QuestionLike.objects.filter(question_id=qid, is_dislike=True).count()
+        return likes - dislikes
+
 
 class AnswerLike(models.Model):
     """
@@ -169,7 +190,8 @@ class AnswerLike(models.Model):
     """
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     answer = models.ForeignKey("Answer", on_delete=models.CASCADE)
-
+    is_dislike = models.BooleanField(default=False,
+                                     help_text="True for dislike, False for like")
     class Meta:
         unique_together = ('user', 'answer')
 
@@ -188,9 +210,27 @@ class Answer(Card):
                                    through='AnswerLike', blank=True, related_name='answer_likes')
     question = models.ForeignKey(Question,
                                  related_name='answers', on_delete=models.CASCADE)
-    
+    is_correct = models.BooleanField(default=False,
+                                     help_text="True if the answer is correct, False otherwise")
+
     def __str__(self):
         return self.content
+
+    @staticmethod
+    def dislike_count_by_id(aid):
+        """
+        Returns the number of dislikes for an answer by its id.
+        """
+        return AnswerLike.objects.filter(answer_id=aid, is_dislike=True).count()
+
+    @staticmethod
+    def real_likes_by_id(aid):
+        """
+        Returns the real likes (likes - dislikes) for an answer by its id.
+        """
+        likes = AnswerLike.objects.filter(answer_id=aid, is_dislike=False).count()
+        dislikes = AnswerLike.objects.filter(answer_id=aid, is_dislike=True).count()
+        return likes - dislikes
 
 
 class TagManager(models.Manager):
@@ -199,7 +239,7 @@ class TagManager(models.Manager):
         Returns tags by number of questions.
         """
         return self.annotate(num_questions=models.Count('questions')).order_by('-num_questions')[:8]
-    
+
 
 class Tag(models.Model):
     """
