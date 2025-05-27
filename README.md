@@ -8,7 +8,11 @@
 
 ## **[ HEADS UP. OUTDATED RN]** Check this out [sorrtory.ru](sorrtory.ru)
 
-Or you can try to build it on your own
+```sh
+docker compose -f prod/docker-compose.yml up
+```
+
+Or you can try to build it on your own [(reference)](https://github.com/testdrivenio/django-on-docker/)
 
 1. Clone the code
 
@@ -44,7 +48,7 @@ Or you can try to build it on your own
 5. Set up the database
 
     ```sh
-    docker compose up -d --build 'db'          # Launch the database 
+    docker compose -f prod/docker-compose.yml up -d --build db  # Launch the database
     python askme_fedukov/manage.py remigrate   # Recreate tables (drop+make)
     python askme_fedukov/manage.py fill_db 50  # Add mock data with <ratio>
     ```
@@ -116,10 +120,10 @@ Djano's [forms](askme_fedukov/app/forms.py) with my [form checker](/askme_feduko
 
 > Django REST Framework is nice but I realised it too late.
 
-- Likes. User can't like himself
-- Correct. User can't like
+- Likes. User can like Answers and Questions but not his own ones.
+- Correct. User can mark Answers to his own Questions.
 
-Unauthorized user can't see this features,  actually
+Unauthorized user can't see this features, actually
 
 ### 6. WSGI
 
@@ -134,7 +138,7 @@ It has a lot of in-built options almost for any case.
 
 But is scales like shit. I was lost trying to organize it properly.
 
-So, to sum up, if you need something simple the formula is `bootsrap+django+djangoREST`.
+So, to sum up, if you need something simple the formula is `bootsrap+django+djangoREST`. \
 Otherwise you **don't need** to chose this framework.
 
 ### Takes

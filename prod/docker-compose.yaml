@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ../.env
+
+  web:
+    build:
+      context: ../askme_fedukov/
+      dockerfile: DjangoDockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DEBUG: ${DEBUG}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+    env_file:
+      - ../.env
+    volumes:
+      - ../askme_fedukov:/home/app/web
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    command: >
+      sh -c "python manage.py migrate 
+          && python manage.py collectstatic --noinput 
+          && python manage.py fill_db 50 
+          && gunicorn askme_fedukov.wsgi:application -c gunicorn.conf.py"
+
+  nginx:
+    build:
+      dockerfile: NginxDockerfile
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    ports:
+      - 1337:80
+    depends_on:
+      - web
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
