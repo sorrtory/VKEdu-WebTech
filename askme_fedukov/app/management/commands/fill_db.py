@@ -58,23 +58,43 @@ class Command(BaseCommand):
         Profile.objects.get_or_create(user=test_user)
 
     def create_users(self, ratio):
-        for _ in range(ratio):
+        created = 0
+        attempts = 0
+        max_attempts = ratio * 10
+        existing_usernames = set(User.objects.values_list('username', flat=True))
+        while created < ratio and attempts < max_attempts:
+            attempts += 1
+            username = fake.user_name()
+            if username in existing_usernames:
+                continue
             user = User.objects.create_user(
-                username=fake.user_name(),
-                email=fake.email(),
+                username=username,
+                email=fake.unique.email(),
                 password='password',
             )
             avatar = random.choice(
                 ['avatars/default.png', 'avatars/avatar1.webp', 'avatars/avatar2.jpg'])
             Profile.objects.create(user=user, avatar=avatar)
+            existing_usernames.add(username)
+            created += 1
 
     def create_tags(self, ratio):
         # See models.Tag.TAG_CHOICES
         # Make sure 'hot' tag exists
         Tag.objects.get_or_create(name='hot', type=1)
-        for _ in range(ratio):
-            Tag.objects.create(name=fake.word(), type=random.choices(
+        created = 0
+        attempts = 0
+        max_attempts = ratio * 10
+        existing_names = set(Tag.objects.values_list('name', flat=True))
+        while created < ratio and attempts < max_attempts:
+            attempts += 1
+            name = fake.word()
+            if name in existing_names:
+                continue
+            Tag.objects.create(name=name, type=random.choices(
                 range(6), weights=[5, 0, 1, 1, 1, 1])[0])
+            existing_names.add(name)
+            created += 1
 
     def create_questions(self, ratio):
         profiles = list(Profile.objects.all())
