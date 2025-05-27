@@ -10,8 +10,7 @@
 
 ```sh
 cd prod
-chmod -R a+rw ../askme_fedukov
-docker compose --env-file ../.env up
+docker compose --env-file ../.env up --build -d
 ```
 
 Or you can try to build it on your own [(reference)](https://github.com/testdrivenio/django-on-docker/)
