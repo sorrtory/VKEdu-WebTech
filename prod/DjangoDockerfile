@@ -14,9 +14,6 @@ ENV PYTHONUNBUFFERED=1
 
 # install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    gnupg \
-    build-essential \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Update pip
@@ -51,13 +48,11 @@ ENV APP_HOME=/home/app/web
 RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/staticfiles
 RUN mkdir $APP_HOME/mediafiles
-WORKDIR $APP_HOME
+WORKDIR $APP_HOME\
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    gnupg \
-    build-essential \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
