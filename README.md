@@ -9,7 +9,8 @@
 ## **[ HEADS UP. OUTDATED RN]** Check this out [sorrtory.ru](sorrtory.ru)
 
 ```sh
-docker compose -f prod/docker-compose.yml up
+cd prod
+docker --env-file ../.env up
 ```
 
 Or you can try to build it on your own [(reference)](https://github.com/testdrivenio/django-on-docker/)

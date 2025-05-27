@@ -15,7 +15,7 @@ services:
   web:
     build:
       context: ../askme_fedukov/
-      dockerfile: DjangoDockerfile
+      dockerfile: ../prod/DjangoDockerfile
     ports:
       - "8000:8000"
     depends_on:
