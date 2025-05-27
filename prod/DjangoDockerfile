@@ -13,10 +13,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # install system dependencies
-RUN apt-get update --allow-releaseinfo-change && \
-    apt-get install -y --no-install-recommends build-essential && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    gnupg \
+    build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Update pip
 RUN pip install --upgrade pip
@@ -53,10 +54,11 @@ RUN mkdir $APP_HOME/mediafiles
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apt-get update --allow-releaseinfo-change && \
-    apt-get install -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    gnupg \
+    build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip
