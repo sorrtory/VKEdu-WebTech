@@ -21,11 +21,11 @@ RUN pip install --upgrade pip
     
 # lint
 RUN pip install flake8==6.0.0
-COPY . /usr/src/app/
+COPY askme_fedukov/ /usr/src/app/
 RUN flake8 --ignore=E501,F401 .
 
 # install python dependencies
-COPY ../requirements.txt .
+COPY requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
 
 
@@ -58,10 +58,10 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
 
 # copy project
-COPY . $APP_HOME
+COPY askme_fedukov/ . $APP_HOME
 
 # copy gunicorn config
-COPY ../prod/gunicorn.conf.py $APP_HOME
+COPY prod/gunicorn.conf.py $APP_HOME
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME

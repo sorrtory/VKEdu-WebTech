@@ -1,0 +1,63 @@
+benchmarks/
+wsgi/
+.venv/
+venv/
+
+# Node and frontend
+node_modules
+npm-debug.log
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# Git
+.git
+.gitignore
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.db
+*.log
+
+# Django
+*.pot
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+media/
+staticfiles/
+static/
+local_settings.py
+
+# Environment
+.env
+*.env
+
+# Build
+dist
+build
+
+# IDEs
+.idea
+.vscode
+
+# Coverage
+coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Docs
+*.md
+
+# Typescript/Javascript (if any)
+*.ts
+*.tsx
+*.js
+*.jsx
