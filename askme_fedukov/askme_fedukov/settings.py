@@ -27,10 +27,7 @@ load_dotenv(BASE_DIR.parent / Path(".env"), override=True)
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get("DEBUG", default=1))
-print(f"DEBUG: {DEBUG}")
-print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-print()
+DEBUG = os.environ.get("DEBUG", "1").lower() in ("1", "true", "yes", "on")
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
 

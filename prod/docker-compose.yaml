@@ -31,7 +31,7 @@ services:
       - media_volume:/home/app/web/media
     command: >
       sh -c "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py fill_db 50 && gunicorn askme_fedukov.wsgi:application -c gunicorn.conf.py"
-    # command: ["sleep", "infinity"]
+    restart: always
 
   nginx:
     image: nginx:latest
