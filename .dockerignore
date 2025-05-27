@@ -30,9 +30,6 @@ __pycache__/
 *.pyo
 *.pyd
 db.sqlite3
-media/
-staticfiles/
-static/
 local_settings.py
 
 # Environment

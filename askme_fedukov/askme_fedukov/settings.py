@@ -24,12 +24,30 @@ load_dotenv(BASE_DIR.parent / Path(".env"), override=True)
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-c)#6(68=+s1w+9naz@4j^ze0db4sguear&)qf%l$@y25k%c5)f'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=1))
+print(f"DEBUG: {DEBUG}")
+print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+print()
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://localhost:1337',
+    'http://127.0.0.1:8000',
+    'http://127.0.0.1:1337',
+    'http://localhost',
+    'http://127.0,0.1',
+    'http://localhost:8000/',
+    'http://localhost:1337/',
+    'http://127.0.0.1:8000/',
+    'http://127.0.0.1:1337/',
+    'http://localhost/',
+    'http://127.0.0.1/'
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -83,12 +101,12 @@ WSGI_APPLICATION = 'askme_fedukov.wsgi.application'
 DATABASES = {
      'default': {
          'ENGINE': 'django.db.backends.postgresql',
-         'NAME': os.getenv('DATABASE_NAME', 'dockerdjango'),
-         'USER': os.getenv('DATABASE_USERNAME', 'dbuser'),
-         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'dbpassword'),
+         'NAME': os.getenv('POSTGRES_DB', 'dockerdjango'),
+         'USER': os.getenv('POSTGRES_USER', 'dbuser'),
+         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'dbpassword'),
 
          'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
-         'PORT': os.getenv('DATABASE_PORT', 5432),
+         'PORT': os.getenv('POSTGRES_PORT', 5432),
      }
  }
 

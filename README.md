@@ -10,7 +10,8 @@
 
 ```sh
 cd prod
-docker --env-file ../.env up
+chmod -R a+rw ../askme_fedukov
+docker compose --env-file ../.env up
 ```
 
 Or you can try to build it on your own [(reference)](https://github.com/testdrivenio/django-on-docker/)
@@ -30,11 +31,11 @@ Or you can try to build it on your own [(reference)](https://github.com/testdriv
 3. Create `.env` file like
 
     ```sh
-    DATABASE_NAME=db
-    DATABASE_USERNAME=user
-    DATABASE_PASSWORD=password
+    POSTGRES_DB=db
+    POSTGRES_USER=user
+    POSTGRES_PASSWORD=password
     DATABASE_HOST=db
-    DATABASE_PORT=5432
+    POSTGRES_PORT=5432
 
     DEBUG=True
     DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
