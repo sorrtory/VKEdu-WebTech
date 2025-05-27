@@ -61,7 +61,7 @@ RUN pip install --no-cache /wheels/*
 COPY . $APP_HOME
 
 # copy gunicorn config
-COPY ../../prod/gunicorn.conf.py $APP_HOME
+COPY ../prod/gunicorn.conf.py $APP_HOME
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
