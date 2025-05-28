@@ -130,6 +130,10 @@ Unauthorized user can't see this features, actually
 
 ...
 
+### 7. Extras
+
+...
+
 ## Conclusion
 
 ### Outline
