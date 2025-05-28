@@ -3,6 +3,8 @@ from django.contrib import auth
 
 from app.models import Profile
 
+from app.utils.notification import generate_jwt_token, check_jwt_token
+
 class Authentication:
     """
     This is a class for user session
@@ -25,10 +27,20 @@ class Authentication:
         self.authenticated = False
         self.profile = None
         self.login_form = None
+        self.jwt_token = None
+        self.jwt_updated = False
+        self.request = request
 
         if auth.get_user(request).is_authenticated:
             self.authenticated = True
             self.profile = Profile.objects.get(user=auth.get_user(request))
+            
+            # Get JWT from cookie or generate a new one
+            self.jwt_token = request.COOKIES.get('jwttoken', None)
+            if self.jwt_token is None or not check_jwt_token(request):
+                self.jwt_token = generate_jwt_token(self.profile.user.id)
+                self.jwt_updated = True  # Check from outside to edit response cookies
+
 
     def setup_login_form(self, request: HttpRequest):
         """

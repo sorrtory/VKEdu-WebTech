@@ -18,6 +18,7 @@ from .utils.get import (get_feed_explore, get_feed_answers, get_feed_hot,
 from .utils.set import Like, Correct
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
 from .utils import redirect_to
+from .utils.notification import add_auth_cookies
 
 
 # Layout controls for templates
@@ -184,6 +185,7 @@ def login(request):
     """
     Page for user login
     """
+    responce = None
 
     # Check if user is authenticated
     auth = Authentication(request)
@@ -191,14 +193,15 @@ def login(request):
     # Set login form (login form is used in templates as ctx.auth.login_form)
     continue_url = auth.setup_login_form(request)
     if continue_url is not None:
-        return redirect(continue_url)
+        responce = redirect(continue_url)
+    else:
+        # Create context for the page
+        data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
+                "ctx": Context(auth, None, "Login")}
+        responce = render(request, "login.html", context=data)
 
-    # Create context for the page
-    data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
-            "ctx": Context(auth, None, "Login")}
-
-    return render(request, "login.html", context=data)
-
+    add_auth_cookies(auth, responce)
+    return responce
 
 def signup(request):
     """
@@ -215,7 +218,9 @@ def signup(request):
     # Redirect if it is a successful POST request
     new_user = form_checker.retrieve()
     if new_user is not None:
-        return redirect(form_checker.redirect())
+        responce = redirect(form_checker.redirect())
+        return add_auth_cookies(auth, responce)
+            
 
     # Set context for the page
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",

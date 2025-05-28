@@ -10,8 +10,9 @@
 
 ```sh
 git clone https://github.com/sorrtory/VKEdu-WebTech.git
-cd VKEdu-WebTech/prod/
-docker compose --env-file ../.env.example up --build
+cd VKEdu-WebTech
+cp .env.example .env
+docker compose up --build
 ```
 
 Or you can try to build it on your own on
@@ -43,9 +44,13 @@ Or you can try to build it on your own on
 5. Set up the database
 
     ```sh
-    docker compose -f prod/docker-compose.yml up -d --build db  # Launch the database
-    python askme_fedukov/manage.py remigrate   # Recreate tables (drop+make)
-    python askme_fedukov/manage.py fill_db 50  # Add mock data with ratio 50
+    # Launch the database
+    cp .env.example .env
+    docker compose -f prod/docker-compose.yaml up -d --build db
+    # Recreate tables (drop+make)
+    python askme_fedukov/manage.py remigrate
+    # Add mock data with ratio 50
+    python askme_fedukov/manage.py fill_db 50  
     ```
 
 6. Launch the server

@@ -32,16 +32,23 @@
   <!-- JS modules -->
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+  <script src="https://unpkg.com/centrifuge@5.2.2/dist/centrifuge.js"></script>
   <script src="{% static 'ajax.js' %}"></script>
+  <script src="{% static 'centrifugo.js' %}"></script>
 
   <!-- Title -->
   <title>{{ ctx.title|default:'AskPupkin' }}</title>
   <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
 </head>
 
-<body class="px-1 px-sm-2  mx-auto">
+
+<body class="px-1 px-sm-2  mx-auto bg-light">
+  <!-- Alert -->
+  <div class="alert alert-primary" role="alert" id="top-alert">
+    This is a primary alert—check it out!
+  </div>
   <!-- Header -->
-  <header class="bg-light navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary mb-3 p-1">
+  <header class="navbar navbar-expand-lg bg-body-tertiary border-bottom border-secondary mb-3 p-1">
     <div class="container-fluid justify-content-start flex-nowrap col-lg-10 col-xxl-7 px-0 px-sm-2">
       <a class="navbar-brand text-dark me-2" href="{% url 'index' %}">
         <h1 class="">AskPupkin</h1>
