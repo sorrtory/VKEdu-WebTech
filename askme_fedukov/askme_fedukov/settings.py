@@ -82,15 +82,21 @@ WSGI_APPLICATION = 'askme_fedukov.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+db_var_names = {
+    'name': os.getenv('DATABASE_NAME_VAR', 'POSTGRES_DB'),
+    'user': os.getenv('DATABASE_USERNAME_VAR', 'POSTGRES_USER'),
+    'password': os.getenv('DATABASE_PASSWORD_VAR', 'POSTGRES_PASSWORD'),
+    'port': os.getenv('DATABASE_PORT_VAR', 'POSTGRES_PORT'),
+}
+
 DATABASES = {
      'default': {
-         'ENGINE': 'django.db.backends.postgresql',
-         'NAME': os.getenv('POSTGRES_DB', 'dockerdjango'),
-         'USER': os.getenv('POSTGRES_USER', 'dbuser'),
-         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'dbpassword'),
-
+         'ENGINE': "django.db.backends." +  os.getenv("DATABASE_TYPE", 'postgresql'),
+         'NAME': os.getenv(db_var_names['name'], 'dockerdjango'),
+         'USER': os.getenv(db_var_names['user'], 'dbuser'),
+         'PASSWORD': os.getenv(db_var_names['password'], 'dbpassword'),
          'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
-         'PORT': os.getenv('POSTGRES_PORT', 5432),
+         'PORT': os.getenv(db_var_names['port'], 5432),
      }
  }
 

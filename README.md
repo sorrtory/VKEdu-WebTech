@@ -6,14 +6,15 @@
 
 <https://github.com/ziontab/tp-tasks>
 
-## **[ HEADS UP. OUTDATED RN]** Check this out [sorrtory.ru](sorrtory.ru)
+## Check this out [sorrtory.ru](sorrtory.ru)
 
 ```sh
-cd prod
-docker compose --env-file ../.env up --build -d
+git clone https://github.com/sorrtory/VKEdu-WebTech.git
+cd VKEdu-WebTech/prod/
+docker compose --env-file ../.env.example up --build
 ```
 
-Or you can try to build it on your own [(reference)](https://github.com/testdrivenio/django-on-docker/)
+Or you can try to build it on your own on
 
 1. Clone the code
 
@@ -27,17 +28,10 @@ Or you can try to build it on your own [(reference)](https://github.com/testdriv
     cd VKEdu-WebTech && python3 -m venv .venv && source .venv/bin/activate
     ```
 
-3. Create `.env` file like
+3. Create `.env` file [like] [example](.env.example) changing
 
     ```sh
-    POSTGRES_DB=db
-    POSTGRES_USER=user
-    POSTGRES_PASSWORD=password
-    DATABASE_HOST=db
-    POSTGRES_PORT=5432
-
-    DEBUG=True
-    DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+    DATABASE_HOST=localhost
     ```
 
 4. Install the requirements
@@ -51,7 +45,7 @@ Or you can try to build it on your own [(reference)](https://github.com/testdriv
     ```sh
     docker compose -f prod/docker-compose.yml up -d --build db  # Launch the database
     python askme_fedukov/manage.py remigrate   # Recreate tables (drop+make)
-    python askme_fedukov/manage.py fill_db 50  # Add mock data with <ratio>
+    python askme_fedukov/manage.py fill_db 50  # Add mock data with ratio 50
     ```
 
 6. Launch the server
@@ -99,7 +93,8 @@ python manage.py fill_db [ratio]
 python manage.py flush
 ```
 
-Where `[ratio]` is the fill factor for entities. After executing the command, the database should be populated with the following:
+Where `[ratio]` is the fill factor for entities.
+After executing the command, the database should be populated with the following:
 
 - Users: `ratio`
 - Questions: `ratio * 10`
@@ -109,17 +104,20 @@ Where `[ratio]` is the fill factor for entities. After executing the command, th
 
 ### 4. Forms
 
-Djano's [forms](askme_fedukov/app/forms.py) with my [form checker](/askme_fedukov/app/utils/form_checker.py)
+Django's [forms](askme_fedukov/app/forms.py)
+with my [form checker](/askme_fedukov/app/utils/form_checker.py) allows to:
 
 - Login
 - Register
-- Profile settings
-- New question
-- New answer
+- Edit Profile
+- Ask new question
+- Answer Questions
 
 ### 5. Ajax
 
 > Django REST Framework is nice but I realised it too late.
+
+Using [js](./askme_fedukov/app/static/ajax.js) and [post](https://github.com/sorrtory/VKEdu-WebTech/blob/master/askme_fedukov/app/views.py#L277-L316)
 
 - Likes. User can like Answers and Questions but not his own ones.
 - Correct. User can mark Answers to his own Questions.
@@ -128,7 +126,7 @@ Unauthorized user can't see this features, actually
 
 ### 6. WSGI
 
-...
+Created [test](wsgi/test.py) script for parsing GET/POST params
 
 ### 7. Extras
 
