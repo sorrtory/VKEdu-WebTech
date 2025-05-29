@@ -57,7 +57,7 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
 
 # copy project
-COPY askme_fedukov/ . $APP_HOME
+COPY askme_fedukov/ $APP_HOME/
 
 # copy gunicorn config
 COPY prod/gunicorn.conf.py $APP_HOME/
