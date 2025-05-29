@@ -63,7 +63,8 @@ class BaseCheckForm:
 
     def retrieve(self):
         """
-        Save the form and return the object created in database.
+        Handles post request and saves the form if valid.
+        Returns the saved object or None if the form is not valid.
         """
         return self.handle_post(self.save)
 

@@ -146,8 +146,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Centrifugo settings
-
 CENTRIFUGO_HOST = os.getenv("CENTRIFUGO_HOST", "http://localhost:8010")
-CENTRIFUGO_SECRET = os.getenv("CENTRIFUGO_SECRET", SECRET_KEY)
-# Centrifugo JWT token expiration time in seconds
-CENTRIFUGO_JWT_EXPIRATION = int(os.getenv("CENTRIFUGO_JWT_EXPIRATION", 3600))  # Default to 1 hour
+CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY = os.getenv("CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY", SECRET_KEY)
+CENTRIFUGO_JWT_EXPIRATION = int(os.getenv("CENTRIFUGO_JWT_EXPIRATION", 3600))
+CENTRIFUGO_HTTP_API_KEY = os.getenv("CENTRIFUGO_HTTP_API_KEY", "your_api_key_here")

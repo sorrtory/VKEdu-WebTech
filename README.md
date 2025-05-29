@@ -135,7 +135,8 @@ Created [test](wsgi/test.py) script for parsing GET/POST params
 
 ### 7. Extras
 
-...
+> Python developers are likely familiar with Django's popular framework for building real-time applications – Django Channels. However, with Centrifugo, you can gain several important advantages:
+
 
 ## Conclusion
 

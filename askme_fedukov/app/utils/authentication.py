@@ -3,9 +3,11 @@ from django.contrib import auth
 
 from app.models import Profile
 
-from app.utils.notification import generate_jwt_token, check_jwt_token
+from app.utils.jwt import generate_jwt_token, check_jwt_token
+
 
 class Authentication:
+    JWT_COOKIE_NAME = 'jwttoken'
     """
     This is a class for user session
 
@@ -20,6 +22,9 @@ class Authentication:
             authenticated (bool): Indicates if the user is authenticated.
             profile (Profile): The Profile object of the user.
             login_form (LoginForm): The LoginForm object for user login.
+            jwt_token (str): The JWT token for the user.
+            request (HttpRequest): The HTTP request object.
+            new_cookies (dict): Cookies to be set in the response.
         """
         if request is None:
             raise ValueError("Request cannot be None")
@@ -28,19 +33,29 @@ class Authentication:
         self.profile = None
         self.login_form = None
         self.jwt_token = None
-        self.jwt_updated = False
         self.request = request
+        self.new_cookies = {}
 
         if auth.get_user(request).is_authenticated:
             self.authenticated = True
             self.profile = Profile.objects.get(user=auth.get_user(request))
-            
-            # Get JWT from cookie or generate a new one
-            self.jwt_token = request.COOKIES.get('jwttoken', None)
-            if self.jwt_token is None or not check_jwt_token(request):
-                self.jwt_token = generate_jwt_token(self.profile.user.id)
-                self.jwt_updated = True  # Check from outside to edit response cookies
 
+            # Get JWT from cookie or generate a new one
+            self.jwt_token = \
+                request.COOKIES.get(Authentication.JWT_COOKIE_NAME, None)
+            if self.jwt_token is None or not check_jwt_token(request, Authentication.JWT_COOKIE_NAME):
+                self.jwt_token = generate_jwt_token(str(self.profile.user.id))
+                self.new_cookies.update({
+                    Authentication.JWT_COOKIE_NAME: self.jwt_token
+                })
+
+    def responce_with_cookies(self, response):
+        """
+        Set cookies from .new_cookies to the response and return it
+        """
+        for cookie_name, cookie_value in self.new_cookies.items():
+            response.set_cookie(cookie_name, cookie_value)
+        return response
 
     def setup_login_form(self, request: HttpRequest):
         """

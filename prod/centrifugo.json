@@ -1,0 +1,23 @@
+{
+    "client": {},
+    "admin": {
+        "enabled": true
+    },
+    "channel": {
+        "without_namespace": {
+            "allow_subscribe_for_client": true,
+            "allow_subscribe_for_anonymous": true,
+            "presence": true
+        },
+        "namespaces": [
+            {
+                "name": "question",
+                "allow_subscribe_for_client": true,
+                "allow_subscribe_for_anonymous": true
+            }
+        ]
+    },
+    "http_server": {
+        "port": 8010
+    }
+}

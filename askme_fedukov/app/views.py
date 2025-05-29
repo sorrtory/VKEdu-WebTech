@@ -18,8 +18,7 @@ from .utils.get import (get_feed_explore, get_feed_answers, get_feed_hot,
 from .utils.set import Like, Correct
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
 from .utils import redirect_to
-from .utils.notification import add_auth_cookies
-
+from .utils.notification import CentrifugoQuestion
 
 # Layout controls for templates
 # "MAIN_COL": "8"              - Number of bootstrap col for main html block
@@ -74,8 +73,9 @@ def question(request, id):
     It also allows to add a new answer.
     """
 
-    # Check if user is authenticated
+    # Check if user is authenticated and set the session
     auth = Authentication(request)
+    notification = CentrifugoQuestion(id)
 
     # Get question by id
     main = get_question_by_id(auth, id)
@@ -90,10 +90,14 @@ def question(request, id):
     # Insert ?content to form
     form_checker.handle_get()
 
-    # Redirect if it is a successful POST request
+    # If it is a successful POST request
     new_answer = form_checker.retrieve()
     if new_answer is not None:
-        return redirect(form_checker.redirect(new_answer))
+        # Notify everyone on the question's page about the new answer
+        link_to_new_answer = form_checker.redirect(new_answer)
+        notification.data["link_to_new_answer"] = link_to_new_answer
+        notification.publish_answer(new_answer)
+        return redirect(link_to_new_answer)
 
     # Create pages of answers to the question
     page_number = request.GET.get('page', 1)
@@ -105,9 +109,12 @@ def question(request, id):
         "answer_form": form,
         "request_path": request.path,
     }
-    data["ctx"].main = main  # Question object
+    data["ctx"].main = main  # Question object5
 
-    return render(request, "question.html", context=data)
+    # Set Centrifugo cookies with subscribtion params
+    # This allows to receive notifications about new answers
+    notification.sub_by_cookies(auth)
+    return auth.responce_with_cookies(render(request, "question.html", context=data))
 
 
 def tag(request, name):
@@ -128,12 +135,22 @@ def tag(request, name):
 
     return render(request, "tag.html", context=data)
 
+@require_POST
+def search(request):
+    """
+    Search for questions by query.
+    It is used by the search form in the header.
+    Responses with the search results.
+    """
+    pass
+    
 
 @require_POST
 @login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
 def ask_redirect(request):
     """
-    Redirect to ask page with content filled into the form
+    Redirect to ask page. 
+    Take post params "content" and "title" and to be filled into the ask form
     """
     # Pass params to ask page
     params = {}
@@ -170,7 +187,6 @@ def ask(request):
     # Redirect if it is a successful POST request
     new_qustion = form_checker.retrieve()
     if new_qustion is not None:
-        # return redirect('question', id=new_qustion.id)
         return redirect(form_checker.redirect(new_qustion))
 
     # Create context for the page
@@ -200,8 +216,7 @@ def login(request):
                 "ctx": Context(auth, None, "Login")}
         responce = render(request, "login.html", context=data)
 
-    add_auth_cookies(auth, responce)
-    return responce
+    return auth.responce_with_cookies(responce)
 
 def signup(request):
     """
@@ -219,7 +234,7 @@ def signup(request):
     new_user = form_checker.retrieve()
     if new_user is not None:
         responce = redirect(form_checker.redirect())
-        return add_auth_cookies(auth, responce)
+        return auth.responce_with_cookies(auth, responce)
             
 
     # Set context for the page
