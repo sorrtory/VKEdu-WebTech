@@ -1,47 +1,74 @@
-import jwt
-import time
 import askme_fedukov.settings as settings
+import requests
+from app.utils.jwt import generate_jwt_token
 
+class Centrifugo:
 
-def generate_jwt_token(user_id: str) -> str:
-    """
-    """
-    claims = {"sub": str(user_id), "channel": "$gossips", "exp": int(time.time()) + settings.CENTRIFUGO_JWT_EXPIRATION}
-    token = jwt.encode(claims, settings.CENTRIFUGO_SECRET , algorithm="HS256")
-    return token
+    def __init__(self, channel: str):
+        """
+        Initialize Centrifugo with the request object.
+        """
+        self.channel = channel
 
-def register_jwt_token(token):
-    """
-    Call centrifugo to register the JWT token for the user.
-    """
-    import requests
-    url = f"{settings.CENTRIFUGO_HOST}/api/jwt"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization:  
+    @staticmethod
+    def publish_question(id: int):
+        """
+        Publish a question to a Centrifugo channel.
+        """
+        channel = f"question:{id}"
+        data = {
+            "id": id,
+            "type": "question",
+        }
+        return Centrifugo.publish_to(channel, data)
 
-def check_jwt_token(request):
-    """
-    Check the JWT token in the request cookies if it exists.
-    """
-    jwt_token = request.COOKIES.get('jwttoken', None)
-    if jwt_token is not None:
-        try:
-            # Decode the JWT to check its validity
-            jwt.decode(jwt_token, settings.CENTRIFUGO_SECRET, algorithms=["HS256"])
-        except jwt.ExpiredSignatureError:
-            return False
-        except jwt.InvalidTokenError:
-            return False
-    return True if jwt_token else False
+    @staticmethod
+    def publish_to(channel: str, data: dict):
+        """
+        Publish a message to a Centrifugo channel.
+        """
+        url = f"{settings.CENTRIFUGO_HOST}/api/publish"
+        headers = {'Content-type': 'application/json',
+                   'X-API-Key': settings.CENTRIFUGO_HTTP_API_KEY}
+        payload = {
+            "channel": channel,
+            "data": data
+        }
+        response = requests.post(url, headers=headers, json=payload)
+        return response.json()
 
+    @staticmethod
+    def get_sub_jwt(self, user_id: str = ""):
+        """
+        Generate a JWT token for Centrifugo.
+        """
+        return generate_jwt_token(str(user_id), 
+                                  settings.CENTRIFUGO_HMAC_SECRET_KEY, 
+                                  settings.CENTRIFUGO_JWT_EXPIRATION)
 
-def add_auth_cookies(auth, response):
+    @staticmethod
+    def sub_by_cookies(auth):
+        """
+        Set cookies for JWT token and Centrifugo URL.
+        """
+        user_id = str(auth.profile.user.id) if auth.authenticated else ""
+        auth.new_cookies.update({
+            'centrifugo_url': settings.CENTRIFUGO_HOST,
+            'centrifugo_jwt': Centrifugo.get_sub_jwt(user_id)
+        })
+        
+
+class CentrifugoQuestion(Centrifugo):
     """
-    Set cookies for JWT token and Centrifugo URL.
+    Centrifugo class for handling question-related operations.
     """
-    if auth.jwt_updated:
-        response.set_cookie("jwttoken", auth.jwt_token)
-    if not auth.request.COOKIES.get('centrifugo', None):
-        response.set_cookie("centrifugourl", settings.CENTRIFUGO_HOST)
-    return response
+
+    def __init__(self, channel: str):
+        super().__init__(channel)
+
+    @staticmethod
+    def publish_question(id: int):
+        """
+        Publish a question to a Centrifugo channel.
+        """
+        return Centrifugo.publish_question(id)
