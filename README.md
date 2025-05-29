@@ -12,7 +12,7 @@
 git clone https://github.com/sorrtory/VKEdu-WebTech.git
 cd VKEdu-WebTech
 cp .env.example .env
-docker compose up --build
+docker compose -f prod/docker-compose.yaml up --build
 ```
 
 Or you can try to build it on your own on
@@ -29,7 +29,7 @@ Or you can try to build it on your own on
     cd VKEdu-WebTech && python3 -m venv .venv && source .venv/bin/activate
     ```
 
-3. Create `.env` file [like] [example](.env.example) changing
+3. Create `.env` file [like] [example](.env.example) changing db host
 
     ```sh
     DATABASE_HOST=localhost
@@ -47,7 +47,7 @@ Or you can try to build it on your own on
     # Launch the database
     cp .env.example .env
     docker compose -f prod/docker-compose.yaml up -d --build db
-    # Recreate tables (drop+make)
+    # Recreate tables (drop+migrate)
     python askme_fedukov/manage.py remigrate
     # Add mock data with ratio 50
     python askme_fedukov/manage.py fill_db 50  
@@ -88,7 +88,7 @@ Some examples of implemented resources:
 [Fill it](askme_fedukov/app/management/commands/fill_db.py) with test data using
 
 ```sh
-# Before filling, you're likely to migrate with 
+# Before filling, you're likely need to migrate with 
 # python manage.py remigrate
 # That'll DROP ALL public tables -> makemigrations -> migrate
 
@@ -136,7 +136,6 @@ Created [test](wsgi/test.py) script for parsing GET/POST params
 ### 7. Extras
 
 > Python developers are likely familiar with Django's popular framework for building real-time applications – Django Channels. However, with Centrifugo, you can gain several important advantages:
-
 
 ## Conclusion
 
