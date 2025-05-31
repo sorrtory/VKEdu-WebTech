@@ -61,7 +61,8 @@ class Command(BaseCommand):
         created = 0
         attempts = 0
         max_attempts = ratio * 10
-        existing_usernames = set(User.objects.values_list('username', flat=True))
+        existing_usernames = set(
+            User.objects.values_list('username', flat=True))
         while created < ratio and attempts < max_attempts:
             attempts += 1
             username = fake.user_name()
@@ -128,9 +129,9 @@ class Command(BaseCommand):
 
         likes_added = 0
         attempts = 0
-        max_attempts = ratio * 200 * 10  # Prevent infinite loop
+        max_attempts = ratio * 2000 * 10  # Prevent infinite loop
 
-        while likes_added < 200 and attempts < max_attempts:
+        while likes_added < 2000 and attempts < max_attempts:
             attempts += 1
             user = random.choice(profiles)
             if random.choice([True, False]):
@@ -139,7 +140,7 @@ class Command(BaseCommand):
                     QuestionLike.objects.create(
                         user=user,
                         question=question,
-                        is_dislike=random.choice([True, False])
+                        is_dislike=random.choice([True, True, True, False])
                     )
                     likes_added += 1
             else:
@@ -148,6 +149,6 @@ class Command(BaseCommand):
                     AnswerLike.objects.create(
                         user=user,
                         answer=answer,
-                        is_dislike=random.choice([True, False])
+                        is_dislike=random.choice([True, True, False])
                     )
                     likes_added += 1
