@@ -1,10 +1,12 @@
 # AskPupkin
 
-> Технопарк Mail.Ru / 1-ый семестр / Web-технологии
+> Technopark Mail.Ru / 1st semester / Web Technologies
 
-This is the easy Q&A platform referencing Stack Overflow.
+This is a default Q&A platform taking Stack Overflow as a reference.
 
-Users have basic features such as auth, ask, asnwer, like.
+Users have basic [features](#features) such as auth, ask, answer, like.
+
+The app is powered by Django, Docker, and Nginx using PostgreSQL, Memcached, and Centrifugo.
 
 ## Source task
 
@@ -12,11 +14,9 @@ Users have basic features such as auth, ask, asnwer, like.
 
 ## Check this out [sorrtory.ru](sorrtory.ru)
 
-### Run as local prod
+### Run as a local prod
 
 You will have to wait till the `web` fill the database.
-
-Then you can go to [nginx page](http://localhost:1337)
 
 ```sh
 git clone https://github.com/sorrtory/VKEdu-WebTech.git
@@ -24,6 +24,8 @@ cd VKEdu-WebTech
 cp .env.example.prod .env
 docker compose -f prod/docker-compose.yaml up --build
 ```
+
+Then you can go to [nginx page](http://localhost:1337)
 
 ### Run as a devserver
 
@@ -39,13 +41,13 @@ docker compose -f prod/docker-compose.yaml up --build
     cd VKEdu-WebTech && python3 -m venv .venv && source .venv/bin/activate
     ```
 
-3. Create `.env` file [like] [example](.env.example.dev) changing db host
+3. Create [.env](.env.example.dev) file set for localhost
 
     ```sh
     cp .env.example.dev .env
     ```
 
-4. Install the requirements
+4. Install python requirements
 
     ```bash
     pip install -r requirements.txt
@@ -87,17 +89,17 @@ docker compose -f prod/docker-compose.yaml up --build
 
 Some examples of implemented resources:
 
-| Page                              | URL                                    | Meaning                                    |
-|-----------------------------------|----------------------------------------|--------------------------------------------|
-| Index page                        | <http://127.0.0.1:8000/>               | список новых вопросов (главная страница)   |
-| Hot questions page                | <http://127.0.0.1:8000/hot/>           | список “лучших” вопросов                   |
-| Tag page                          | <http://127.0.0.1:8000/tag/blablabla/> | список вопросов по тэгу                    |
-| Question page                     | <http://127.0.0.1:8000/question/5/>    | страница одного вопроса со списком ответов |
-| Ask page                          | <http://127.0.0.1:8000/ask/>           | форма создания вопроса                     |
-| Login page                        | <http://127.0.0.1:8000/login/>         | форм логина                                |
-| Register page                     | <http://127.0.0.1:8000/signup/>        | форма регистрации                          |
-| Settings page                     | <http://127.0.0.1:8000/settings/>      | настройки                                  |
-| Profile page                      | <http://127.0.0.1:8000/profile/0/>     | публичная страница пользователя            |
+| Page              | URL                                    | Description                                      |
+|-------------------|----------------------------------------|--------------------------------------------------|
+| Index page        | <http://127.0.0.1:8000/>               | list of new questions (main page)                |
+| Hot questions     | <http://127.0.0.1:8000/hot/>           | list of “hot” questions                          |
+| Tag page          | <http://127.0.0.1:8000/tag/blablabla/> | list of questions by tag                         |
+| Question page     | <http://127.0.0.1:8000/question/5/>    | single question page with answers                |
+| Ask page          | <http://127.0.0.1:8000/ask/>           | question creation form                           |
+| Login page        | <http://127.0.0.1:8000/login/>         | login form                                       |
+| Register page     | <http://127.0.0.1:8000/signup/>        | registration form                                |
+| Settings page     | <http://127.0.0.1:8000/settings/>      | user settings                                    |
+| Profile page      | <http://127.0.0.1:8000/profile/0/>     | public user profile page                         |
 
 ### 3. Database
 
@@ -136,9 +138,7 @@ with my [form checker](/askme_fedukov/app/utils/form_checker.py) allows to:
 
 ### 5. Ajax
 
-> Django REST Framework is nice but I realised it too late.
-
-Using [js](./askme_fedukov/app/static/ajax.js) and [post](https://github.com/sorrtory/VKEdu-WebTech/blob/master/askme_fedukov/app/views.py#L277-L316)
+With the help of [js](./askme_fedukov/app/static/ajax.js) and [POST](https://github.com/sorrtory/VKEdu-WebTech/blob/master/askme_fedukov/app/views.py#L277-L316)
 
 - Likes. User can like Answers and Questions but not his own ones.
 - Correct. User can mark Answers to his own Questions.
@@ -148,6 +148,8 @@ Unauthorized user can't see this features, actually
 ### 6. WSGI
 
 Created [test](wsgi/test.py) script for parsing GET/POST params
+
+Then the [gunicorn](./prod/gunicorn.conf.py) were used with the help of django.
 
 ### 7. Extras
 
