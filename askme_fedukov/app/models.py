@@ -171,11 +171,11 @@ class QuestionManager(models.Manager):
         """
         return self.get_queryset().filter(tags__name='hot')
 
-    def new(self):
+    def new(self, offset=0, limit=20):
         """
-        Returns questions ordered by timestamp.
+        Returns questions ordered by timestamp, with optional offset and limit for pagination.
         """
-        return self.get_queryset().order_by('-created_at')
+        return self.get_queryset().order_by('-created_at')[offset:offset+limit]
     
     def search(self, query):
         """

@@ -33,7 +33,18 @@ def get_feed_explore(auth: Authentication, page_number: int, cards_per_page: int
     """
     Returns a paginator of CardExplore objects.
     """
-    questions = Question.objects.new().prefetch_related('tags')
+    # Limit the number of cards for explore
+    offset = 0
+    limit = cards_per_page * 50  # Limit for 50 pages for feed
+
+    # TODO: The pagination logic is not implemented correctly here.
+    # It is need to be fixed in templates to not pass all the pages at once.
+    
+    # To query just for this page
+    # offset = (page_number - 1) * cards_per_page
+    # limit = cards_per_page
+
+    questions = Question.objects.new(offset, limit).prefetch_related('tags')
     cards = [
         CardExplore(
             auth,
