@@ -53,22 +53,26 @@ Then you can go to [nginx page](http://localhost:1337)
     pip install -r requirements.txt
     ```
 
-5. Set up `postgres`
+5. Set up containers: `db`, `memcached`, `centrifugo`, `cron`
 
     ```sh
-    # cp .env.example.dev .env  # Ensure to have proper environment
-    # Launch the database
-    docker compose -f prod/docker-compose.yaml up -d --build db
-    # Create tables (script does drop+migrate)
-    python askme_fedukov/manage.py remigrate
-    # Add mock data with ratio 50
-    python askme_fedukov/manage.py fill_db 50  
+    docker compose -f prod/docker-compose.yaml up -d --build db memcached centrifugo cron
     ```
 
-6. Up `memcached` and `centrifugo` and `cron`
+6. Fill the database
 
     ```sh
-    docker compose -f prod/docker-compose.yaml up -d --build memcached centrifugo cron
+    # Ensure the database is ready
+    docker exec prod-db-1 bash -c "pg_isready"
+    # Ensure to have a proper environment
+    # cp .env.example.dev .env
+
+    # Create tables (script does drop+migrate)
+    python askme_fedukov/manage.py remigrate
+    # Clean old data with
+    python askme_fedukov/manage.py flush
+    # Add mock data with ratio 50
+    python askme_fedukov/manage.py fill_db 50
     ```
 
 7. Launch the server
