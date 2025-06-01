@@ -137,7 +137,8 @@ Created [test](wsgi/test.py) script for parsing GET/POST params
 
 > Python developers are likely familiar with Django's popular framework for building real-time applications – Django Channels. However, with Centrifugo, you can gain several important advantages: None
 
-Set up [Centrifugo](./askme_fedukov/app/utils/notification.py) as a notification service
+- Set up [Centrifugo](./askme_fedukov/app/utils/notification.py) as a notification service
+- Set up [cache](./askme_fedukov/app/utils/cache.py) which expires after 30 sec and is [filled](./prod/cron.sh) every 1 min.
 
 ## Conclusion
 
@@ -145,8 +146,6 @@ Set up [Centrifugo](./askme_fedukov/app/utils/notification.py) as a notification
 
 Django is really powerful when you need to create the app very fast.
 It has a lot of in-built options almost for any case.
-
-But is scales like shit. I was lost trying to organize it properly.
 
 So, to sum up, if you need something simple the formula is `bootsrap+django+djangoREST`. \
 Otherwise you **don't need** to chose this framework.

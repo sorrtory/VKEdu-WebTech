@@ -3,6 +3,7 @@ from .frontend_models import BadgeTag
 from .authentication import Authentication
 
 from .feed import BaseFeed
+from .cache import CacheManager
 
 class Context:
     """
@@ -32,10 +33,16 @@ class Context:
         """
         Returns a list of hot tags.
         """
-        return [BadgeTag(tag.name, tag.type) for tag in Tag.objects.get_hot_tags() if tag.name != "hot"]
+        # tags = Tag.objects.get_hot_tags()
+        tags = CacheManager().get("hot_tags")
+        tags = tags if tags else []
+        return [BadgeTag(tag.name, tag.type) for tag in tags if tag.name != "hot"]
 
     def get_best_members(self):
         """
         Returns a list of best members.
         """
-        return Profile.objects.get_best_members()
+        # best = Profile.objects.get_best_members()
+        best = CacheManager().get("best_members")
+        best = best if best else []
+        return best

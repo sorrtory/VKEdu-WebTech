@@ -7,6 +7,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - ../.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   centrifugo:
     container_name: centrifugo
     image: centrifugo/centrifugo:v6
@@ -21,6 +27,12 @@ services:
         hard: 65535
     env_file:
       - ../.env
+
+  memcached:
+    image: memcached
+    ports:
+      - "11211:11211"
+
   web:
     build:
       context: ../
@@ -28,17 +40,27 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      centrifugo:
+        condition: service_started
+      memcached:
+        condition: service_started
     env_file:
       - ../.env
-    environment:
-      - DATABASE_HOST=db
     volumes:
       - static_volume:/home/app/web/static
       - media_volume:/home/app/web/media
-    command: >
-      sh -c "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py fill_db 50 && gunicorn askme_fedukov.wsgi:application -c gunicorn.conf.py"
-    restart: always
+    restart: unless-stopped
+  
+  cron:
+    build:
+      context: ../
+      dockerfile: prod/CronDockerfile
+    depends_on:
+      - web
+    env_file:
+      - ../.env
 
   nginx:
     image: nginx:latest

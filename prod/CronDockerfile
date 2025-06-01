@@ -1,6 +1,4 @@
 ###########
-# BUILDER #
-###########
 
 # pull official base image
 FROM python:3.13.3-slim-bookworm AS builder
@@ -60,19 +58,19 @@ RUN pip install --no-cache /wheels/*
 # copy project
 COPY askme_fedukov/ $APP_HOME/
 
-# copy gunicorn config
-COPY prod/gunicorn.conf.py $APP_HOME/
+# set up crontab for cache
+COPY prod/crontab /etc/cron.d/update_cache
 
-# Set up entrypoint
-COPY prod/entrypoint.sh entrypoint.sh
-RUN sed -i 's/\r$//g' entrypoint.sh
-RUN chmod +x entrypoint.sh
-ENTRYPOINT ["./entrypoint.sh"]
+# Give execution rights on the cron job
+RUN chmod 0644 /etc/cron.d/update_cache
+# Apply cron job
+RUN crontab /etc/cron.d/update_cache
+# Create the log file to be able to run tail
+RUN touch /var/log/cron.log
 
-# chown all the files to the app user
-RUN chown -R app:app $APP_HOME
-# change to the app user
-USER app
+# Set up entrypoint script
+COPY prod/cron.sh cron.sh
+RUN sed -i 's/\r$//g' cron.sh
+RUN chmod +x cron.sh
 
-# Start the application using Gunicorn
-CMD ["gunicorn", "-c", "gunicorn.conf.py" , "askme_fedukov.wsgi:application"]
+CMD [ "/bin/bash", "-c", "export -p > .env && cron && tail -f /var/log/cron.log" ]

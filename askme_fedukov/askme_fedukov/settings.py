@@ -150,3 +150,12 @@ CENTRIFUGO_HOST = os.getenv("CENTRIFUGO_HOST", "http://localhost:8010")
 CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY = os.getenv("CENTRIFUGO_CLIENT_TOKEN_HMAC_SECRET_KEY", SECRET_KEY)
 CENTRIFUGO_JWT_EXPIRATION = int(os.getenv("CENTRIFUGO_JWT_EXPIRATION", 3600))
 CENTRIFUGO_HTTP_API_KEY = os.getenv("CENTRIFUGO_HTTP_API_KEY", "your_api_key_here")
+
+# Memcached settings
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": os.getenv("MEMCACHED_HOST", "127.0.0.1:11211"),
+        "TIMEOUT": int(os.getenv("MEMCACHED_TIMEOUT", 60)),
+    }
+}

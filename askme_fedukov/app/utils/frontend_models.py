@@ -235,8 +235,6 @@ class ProfileCard:
         self.tags = [BadgeTag(tag.name, tag.type)
                      for tag in profile.tags.all()]
 
-        # Now it's not shown, but may be used in the future
-        self.likes_count = profile.answer_likes.count() + profile.question_likes.count()
         self.answer_likes = profile.answer_likes
         self.question_likes = profile.question_likes
 

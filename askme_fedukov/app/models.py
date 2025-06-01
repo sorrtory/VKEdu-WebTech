@@ -1,8 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
 
 # TODO: move get and set from the structure of the models to the managers
+# Also the "real_like" (like - dislike) logic should be counted with ORM
 
 class ProfileManager(models.Manager):
     """
@@ -11,12 +14,53 @@ class ProfileManager(models.Manager):
 
     def get_best_members(self):
         """
-        Returns the best members based on the number of questions and answers.
+        Returns the top 10 users who asked the most popular questions or gave the most popular answers in the last week.
+        Popularity is determined by the number of real likes (likes - dislikes) on questions and answers.
         """
-        return self.annotate(
-            num_questions=models.Count('questions'),
-            num_answers=models.Count('answers')
-        ).order_by('-num_answers', '-num_questions')[:5]
+        week_ago = timezone.now() - timedelta(days=7)
+
+        # Combine likes from questions and answers into total_like_number
+        qs = self.get_queryset().annotate(
+            question_real_like_number=models.Sum(
+                models.Case(
+                    models.When(
+                        questions__created_at__gte=week_ago,
+                        questions__questionlike__is_dislike=False,
+                        then=1
+                    ),
+                    models.When(
+                        questions__created_at__gte=week_ago,
+                        questions__questionlike__is_dislike=True,
+                        then=-1
+                    ),
+                    default=0,
+                    output_field=models.IntegerField()
+                )
+            ),
+            answer_real_like_number=models.Sum(
+                models.Case(
+                    models.When(
+                        answers__created_at__gte=week_ago,
+                        answers__answerlike__is_dislike=False,
+                        then=1
+                    ),
+                    models.When(
+                        answers__created_at__gte=week_ago,
+                        answers__answerlike__is_dislike=True,
+                        then=-1
+                    ),
+                    default=0,
+                    output_field=models.IntegerField()
+                )
+            )
+        ).annotate(
+            total_like_number=models.ExpressionWrapper(
+                (models.F('question_real_like_number') + models.F('answer_real_like_number')),
+                output_field=models.IntegerField()
+            )
+        ).order_by('-total_like_number')
+        
+        return qs[:10]
 
     def get_test_profile(self):
         """
@@ -236,9 +280,15 @@ class Answer(Card):
 class TagManager(models.Manager):
     def get_hot_tags(self):
         """
-        Returns tags by number of questions.
+        Returns the 10 tags with the most questions in the last 3 months.
         """
-        return self.annotate(num_questions=models.Count('questions')).order_by('-num_questions')[:8]
+        three_months_ago = timezone.now() - timedelta(days=90)
+        return self.annotate(
+            recent_questions=models.Count(
+                'questions',
+                filter=models.Q(questions__created_at__gte=three_months_ago)
+            )
+        ).order_by('-recent_questions')[:10]
 
 
 class Tag(models.Model):
