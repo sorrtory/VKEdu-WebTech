@@ -148,7 +148,8 @@ It has a lot of in-built options almost for any case and you must use them as th
 So, to sum up, if you need a simple web app the formula is `bootsrap+django+djangoREST`. \
 Otherwise you **don't need** to chose this framework.
 
-### Takes
+### TakesUnauthorized user can't see this features, actually
+
 
 #### This project
 
