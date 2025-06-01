@@ -57,8 +57,6 @@ services:
     build:
       context: ../
       dockerfile: prod/CronDockerfile
-    depends_on:
-      - web
     env_file:
       - ../.env
 

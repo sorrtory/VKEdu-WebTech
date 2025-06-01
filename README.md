@@ -1,21 +1,31 @@
-# Tp-tasks
+# AskPupkin
 
-Технопарк Mail.Ru / 1-ый семестр / Web-технологии
+> Технопарк Mail.Ru / 1-ый семестр / Web-технологии
 
-## Source
+This is the easy Q&A platform referencing Stack Overflow.
+
+Users have basic features such as auth, ask, asnwer, like.
+
+## Source task
 
 <https://github.com/ziontab/tp-tasks>
 
 ## Check this out [sorrtory.ru](sorrtory.ru)
 
+### Run as local prod
+
+You will have to wait till the `web` fill the database.
+
+Then you can go to [nginx page](http://localhost:1337)
+
 ```sh
 git clone https://github.com/sorrtory/VKEdu-WebTech.git
 cd VKEdu-WebTech
-cp .env.example .env
+cp .env.example.prod .env
 docker compose -f prod/docker-compose.yaml up --build
 ```
 
-Or you can try to build it on your own on
+### Run as a devserver
 
 1. Clone the code
 
@@ -29,10 +39,10 @@ Or you can try to build it on your own on
     cd VKEdu-WebTech && python3 -m venv .venv && source .venv/bin/activate
     ```
 
-3. Create `.env` file [like] [example](.env.example) changing db host
+3. Create `.env` file [like] [example](.env.example.dev) changing db host
 
     ```sh
-    DATABASE_HOST=localhost
+    cp .env.example.dev .env
     ```
 
 4. Install the requirements
@@ -41,27 +51,33 @@ Or you can try to build it on your own on
     pip install -r requirements.txt
     ```
 
-5. Set up the database
+5. Set up `postgres`
 
     ```sh
+    # cp .env.example.dev .env  # Ensure to have proper environment
     # Launch the database
-    cp .env.example .env
     docker compose -f prod/docker-compose.yaml up -d --build db
-    # Recreate tables (drop+migrate)
+    # Create tables (script does drop+migrate)
     python askme_fedukov/manage.py remigrate
     # Add mock data with ratio 50
     python askme_fedukov/manage.py fill_db 50  
     ```
 
-6. Launch the server
+6. Up `memcached` and `centrifugo` and `cron`
+
+    ```sh
+    docker compose -f prod/docker-compose.yaml up -d --build memcached centrifugo cron
+    ```
+
+7. Launch the server
 
     ```bash
     python askme_fedukov/manage.py runserver
     ```
 
-7. Open the [localhost](http://127.0.0.1:8000/)
+8. Open the [localhost](http://127.0.0.1:8000/)
 
-## Status
+## Features
 
 ### 1. Layout
 
@@ -135,8 +151,10 @@ Created [test](wsgi/test.py) script for parsing GET/POST params
 
 ### 7. Extras
 
-- Set up [Centrifugo](./askme_fedukov/app/utils/notification.py) as a notification service. If someone adds a new answer, everyone, who is on the question's page, will recieve a notification.
-- Set up [cache](./askme_fedukov/app/utils/cache.py) for aside block, which expires after 30 sec and is [filled](./prod/cron.sh) every 1 min.
+- Set up [Centrifugo](./askme_fedukov/app/utils/notification.py) as a notification service. \
+    If someone adds a new answer, everyone, who is on the question's page, will recieve a notification.
+- Set up [cache](./askme_fedukov/app/utils/cache.py) for aside block. \
+    By default cache expires after 30 sec, and every 1 min it's [filled](./prod/cron.sh). Then it would be obvious that cache works properly.
 
 ## Conclusion
 
@@ -148,8 +166,7 @@ It has a lot of in-built options almost for any case and you must use them as th
 So, to sum up, if you need a simple web app the formula is `bootsrap+django+djangoREST`. \
 Otherwise you **don't need** to chose this framework.
 
-### TakesUnauthorized user can't see this features, actually
-
+### Takes
 
 #### This project
 
