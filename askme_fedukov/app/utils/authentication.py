@@ -24,6 +24,7 @@ class Authentication:
             login_form (LoginForm): The LoginForm object for user login.
             jwt_token (str): The JWT token for the user.
             request (HttpRequest): The HTTP request object.
+            old_cookies (dict): Cookies from the request.
             new_cookies (dict): Cookies to be set in the response.
         """
         if request is None:
@@ -34,8 +35,11 @@ class Authentication:
         self.login_form = None
         self.jwt_token = None
         self.request = request
+        self.old_cookies = request.COOKIES if request.COOKIES else {}
+        self.remove_cookies = {}
         self.new_cookies = {}
 
+        # Try to auth
         if auth.get_user(request).is_authenticated:
             self.authenticated = True
             self.profile = Profile.objects.get(user=auth.get_user(request))
@@ -49,12 +53,36 @@ class Authentication:
                     Authentication.JWT_COOKIE_NAME: self.jwt_token
                 })
 
+        # Set up notifications
+        self.sub()
+        self.clean_cookies()
+
+    def sub(self):
+        """
+        Subscribe to the main Centrifugo channel using the user's cookies.
+        """
+        from app.utils.notification import CentrifugoMain
+        self.notification = CentrifugoMain()
+        self.notification.sub_by_cookies(self)
+    
+    def clean_cookies(self):
+        """
+        Clear the new_cookies dictionary.
+        This is used to reset cookies before setting new ones.
+        """
+        if self.old_cookies.get("centrifugo_channel_question") and not self.request.path.startswith("/question/"):
+            self.remove_cookies["centrifugo_channel_question"] = True
+
     def responce_with_cookies(self, response):
         """
         Set cookies from .new_cookies to the response and return it
         """
         for cookie_name, cookie_value in self.new_cookies.items():
             response.set_cookie(cookie_name, cookie_value)
+        
+        for cookie_name in self.remove_cookies:
+            response.delete_cookie(cookie_name)
+            
         return response
 
     def setup_login_form(self, request: HttpRequest):

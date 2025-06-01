@@ -161,6 +161,7 @@ Then the [gunicorn](./prod/gunicorn.conf.py) were used with the help of django.
     If someone adds a new answer, everyone, who is on the question's page, will recieve a notification.
 - Set up [cache](./askme_fedukov/app/utils/cache.py) for aside block. \
     By default cache expires after 30 sec, and every 1 min it's [filled](./prod/cron.sh). Then it would be obvious that cache works properly.
+- Set up [search](./askme_fedukov/app/static/search.js) bar to do full text searching with Django's [defaults]((https://github.com/sorrtory/VKEdu-WebTech/blob/master/askme_fedukov/app/models.py#L180-L190))
 
 ## Conclusion
 

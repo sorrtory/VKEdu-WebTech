@@ -71,7 +71,8 @@ services:
         condition: service_started
     environment:
       - DATABASE_HOST=db
-      - MEMCACHED_HOST=memcached
+      - MEMCACHED_HOST=memcached:11211
+      - CENTRIFUGO_HOST=centrifugo:8010
 
   nginx:
     image: nginx:latest

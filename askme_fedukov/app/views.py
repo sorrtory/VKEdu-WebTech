@@ -19,7 +19,7 @@ from .utils.get import (get_feed_explore, get_feed_answers, get_feed_hot,
 from .utils.set import Like, Correct
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
 from .utils import redirect_to
-from .utils.notification import CentrifugoQuestion
+from .utils.notification import CentrifugoQuestion, CentrifugoMain
 
 # Layout controls for templates
 # "MAIN_COL": "8"              - Number of bootstrap col for main html block
@@ -46,8 +46,9 @@ def index(request):
 
     # Create context for the page
     data = {"ctx": Context(auth, feed, "AskPupkin")}
-
-    return render(request, "index.html", context=data)
+    
+    
+    return auth.responce_with_cookies(render(request, "index.html", context=data))
 
 
 def hot(request):
@@ -64,7 +65,7 @@ def hot(request):
 
     # Create context for the page
     data = {"ctx": Context(auth, feed, title="Hot questions")}
-    return render(request, "hot.html", context=data)
+    return auth.responce_with_cookies(render(request, "hot.html", context=data))
 
 
 def question(request, id):
@@ -110,7 +111,7 @@ def question(request, id):
         "answer_form": form,
         "request_path": request.path,
     }
-    data["ctx"].main = main  # Question object5
+    data["ctx"].main = main  # Question object
 
     # Set Centrifugo cookies with subscribtion params
     # This allows to receive notifications about new answers
@@ -134,7 +135,7 @@ def tag(request, name):
     data = {"ctx": Context(auth, feed, title=f'"{name}" questions')}
     data["ctx"].tag_name = name
 
-    return render(request, "tag.html", context=data)
+    return auth.responce_with_cookies(render(request, "tag.html", context=data))
 
 
 @require_POST
@@ -205,7 +206,7 @@ def ask(request):
             "ctx": Context(auth, None, "Ask question"),
             "form": form}
 
-    return render(request, "ask.html", context=data)
+    return auth.responce_with_cookies(render(request, "ask.html", context=data))
 
 
 def login(request):
@@ -253,7 +254,7 @@ def signup(request):
             "ctx": Context(auth, None, "Sign up"),
             "profile_form": form}
 
-    return render(request, "signup.html", context=data)
+    return auth.responce_with_cookies(render(request, "signup.html", context=data))
 
 
 @login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
@@ -280,7 +281,7 @@ def settings(request):
             "ctx": Context(auth, None, "My profile"),
             "form": form}
 
-    return render(request, "settings.html", context=data)
+    return auth.responce_with_cookies(render(request, "settings.html", context=data))
 
 
 def profile(request, id):
@@ -302,7 +303,7 @@ def profile(request, id):
 
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
             "ctx": Context(auth, feed, title), }
-    return render(request, "profile.html", context=data)
+    return auth.responce_with_cookies(render(request, "profile.html", context=data))
 
 
 @require_POST

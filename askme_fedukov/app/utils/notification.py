@@ -14,8 +14,12 @@ class Centrifugo:
         """
         Initialize Centrifugo with the request object.
         """
-        self.channel = channel  # Channel name for Centrifugo
-        self.data = {}          # Data to be published to the channel
+        # Channel name for Centrifugo
+        self.channel = channel
+        # Cookie's name for channel
+        self.cookie_channel_name = "centrifugo_channel_default" 
+        # Data to be published to the channel
+        self.data = {}
 
 
     def publish(self):
@@ -50,11 +54,16 @@ class Centrifugo:
         user_id = ""
         if auth and auth.profile and auth.profile.user:
             user_id = auth.profile.user.id
-        auth.new_cookies.update({
-            'centrifugo_url': settings.CENTRIFUGO_HOST,
-            'centrifugo_jwt': self.get_sub_jwt(user_id),
-            'centrifugo_channel': self.channel,
-        })
+        
+        # Update channel in cookies if it has changed
+        if auth.old_cookies.get(self.cookie_channel_name) != self.channel:
+            auth.new_cookies[self.cookie_channel_name] = self.channel
+        
+        # Update Centrifugo settings in cookies
+        if auth.old_cookies.get('centrifugo_url') != settings.CENTRIFUGO_HOST:
+            auth.new_cookies['centrifugo_url'] = settings.CENTRIFUGO_HOST
+        if auth.old_cookies.get('centrifugo_jwt') != self.get_sub_jwt(user_id):
+            auth.new_cookies['centrifugo_jwt'] = self.get_sub_jwt(user_id)
 
 
 class CentrifugoQuestion(Centrifugo):
@@ -66,6 +75,7 @@ class CentrifugoQuestion(Centrifugo):
         self.question_id = question_id
         channel = f"question:{question_id}"
         super().__init__(channel)
+        self.cookie_channel_name = "centrifugo_channel_question"
 
     def publish_answer(self, answer: Answer):
         """
@@ -80,3 +90,22 @@ class CentrifugoQuestion(Centrifugo):
             "answer_author": answer.author.user.username,
         })
         return self.publish()
+    
+class CentrifugoMain(Centrifugo):
+    """
+    Centrifugo class for handling index page notifications.
+    """
+
+    def __init__(self):
+        channel = "main"
+        super().__init__(channel)
+        self.cookie_channel_name = "centrifugo_channel_main"
+
+    def publish(self, msg: str = "Test message"):
+        """
+        Add message to .data and publish it to the index channel.
+        Returns the response from the Centrifugo API.
+        """
+        self.data["message"] = msg
+        return super().publish()
+    
