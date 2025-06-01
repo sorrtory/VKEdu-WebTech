@@ -135,19 +135,17 @@ Created [test](wsgi/test.py) script for parsing GET/POST params
 
 ### 7. Extras
 
-> Python developers are likely familiar with Django's popular framework for building real-time applications – Django Channels. However, with Centrifugo, you can gain several important advantages: None
-
-- Set up [Centrifugo](./askme_fedukov/app/utils/notification.py) as a notification service
-- Set up [cache](./askme_fedukov/app/utils/cache.py) which expires after 30 sec and is [filled](./prod/cron.sh) every 1 min.
+- Set up [Centrifugo](./askme_fedukov/app/utils/notification.py) as a notification service. If someone adds a new answer, everyone, who is on the question's page, will recieve a notification.
+- Set up [cache](./askme_fedukov/app/utils/cache.py) for aside block, which expires after 30 sec and is [filled](./prod/cron.sh) every 1 min.
 
 ## Conclusion
 
 ### Outline
 
 Django is really powerful when you need to create the app very fast.
-It has a lot of in-built options almost for any case.
+It has a lot of in-built options almost for any case and you must use them as they are.
 
-So, to sum up, if you need something simple the formula is `bootsrap+django+djangoREST`. \
+So, to sum up, if you need a simple web app the formula is `bootsrap+django+djangoREST`. \
 Otherwise you **don't need** to chose this framework.
 
 ### Takes
@@ -164,4 +162,5 @@ Otherwise you **don't need** to chose this framework.
 
 - Creating several types for one logic (AnswerLike, QuestionLike) is pointless
 - Golang's "err"-check thing is a brilliant. Never skip this thing in other langs
-- Format code as you write/generate it (so formatter won't fuck jinja's embeds)
+- Format code as you write/generate it (then formatter won't fuck jinja's embeds)
+- Cron in container is strange. Scripting the host will be better using kube/ansible.
