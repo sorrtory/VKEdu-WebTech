@@ -138,7 +138,7 @@ with my [form checker](/askme_fedukov/app/utils/form_checker.py) allows to:
 
 ### 5. Ajax
 
-With the help of [js](./askme_fedukov/app/static/ajax.js) and [POST](https://github.com/sorrtory/VKEdu-WebTech/blob/master/askme_fedukov/app/views.py#L277-L316)
+With the help of [js](./askme_fedukov/app/static/ajax.js) and [POST](https://github.com/sorrtory/VKEdu-WebTech/blob/master/askme_fedukov/app/views.py#L297-L336)
 
 - Likes. User can like Answers and Questions but not his own ones.
 - Correct. User can mark Answers to his own Questions.
