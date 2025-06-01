@@ -2,10 +2,7 @@ from app.models import AnswerLike, QuestionLike, Answer, Question
 from app.utils.authentication import Authentication
 from django.http import HttpRequest
 
-from .get import get_userlike_status_and_count_for, get_checkbox_status_for
-
-import json
-
+from .get import get_userlike_status_and_count_for, get_json_data_from_request
 
 class Like:
 
@@ -14,16 +11,7 @@ class Like:
         Initializes the Like object with authentication, model type, and model ID.
         """
         self.auth = auth
-        self.body = {}
-
-        # Parse JSON body if POST and content-type is application/json
-        if request.method == "POST" and request.content_type == "application/json":
-            try:
-                self.body = json.loads(request.body)
-            except Exception as e:
-                self.body = {}
-        else:
-            self.body = {}
+        self.body = get_json_data_from_request(request)
 
         self.params = request.GET
 

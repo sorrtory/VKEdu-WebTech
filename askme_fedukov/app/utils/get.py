@@ -2,7 +2,9 @@
 # which are used to retrieve data from the database
 
 # TODO: Split this fucking horror into classes. I have no idea what's going on here.
+# Also json parser should be here instead of database queries (which have to be connected with view classes).
 
+import json
 from app.models import Answer, Question, AnswerLike, QuestionLike
 
 from app.utils.authentication import Authentication
@@ -197,3 +199,30 @@ def get_checkbox_status_for(auth: Authentication, answer_id: int) -> bool:
         return answ.question.author == auth.profile
     else:
         return None
+    
+def get_questions_by_text(query: str):
+    """
+    Searches for questions by title.
+    Returns:
+        QuerySet: A queryset of questions that match the title.
+    """
+    return Question.objects.search(query)
+
+
+def get_json_data_from_request(request):
+    """
+    Parses JSON data from the request body.
+    
+    Returns:
+        dict: Parsed JSON data.
+    """
+    out = {}
+    if request.method == "POST" and request.content_type == "application/json":
+        try:
+            out = json.loads(request.body)
+        except Exception as e:
+            out = {}
+    else:
+        raise ValueError("Request method must be POST and content type must be application/json.")
+
+    return out

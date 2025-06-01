@@ -3,9 +3,11 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 # TODO: move get and set from the structure of the models to the managers
 # Also the "real_like" (like - dislike) logic should be counted with ORM
+# Also I think that it is better to use view classes connected to the models
 
 class ProfileManager(models.Manager):
     """
@@ -174,6 +176,18 @@ class QuestionManager(models.Manager):
         Returns questions ordered by timestamp.
         """
         return self.get_queryset().order_by('-created_at')
+    
+    def search(self, query):
+        """
+        Searches for questions by title or content.
+        Returns a queryset of questions that match the query.
+        """
+        search_vector = SearchVector("title", weight='A') + SearchVector("content", weight='B')
+        search_query = SearchQuery(query)
+        return self.get_queryset().annotate(
+            search=search_vector,
+            rank=SearchRank(search_vector, search_query)
+        ).filter(search=search_query).filter(rank__gt=0).order_by('-rank')
 
 
 class Question(Card):
@@ -210,6 +224,22 @@ class Question(Card):
             self.tags.add(hot_tag)
         else:
             self.tags.remove(hot_tag)
+    
+    def to_json(self):
+        """
+        Returns a JSON-serializable dictionary representation of the question.
+        """
+        return {
+            "id": self.id,
+            "title": self.title,
+            "content": self.content,
+            "created_at": self.created_at.isoformat(),
+            "author": self.author.user.username if self.author and self.author.user else None,
+            "likes": self.likes.count(),
+            "real_likes": Question.real_likes_by_id(self.id),
+            "tags": [tag.name for tag in self.tags.all()],
+            "answers_count": self.answers.count(),
+        }
 
     @staticmethod
     def dislike_count_by_id(qid):

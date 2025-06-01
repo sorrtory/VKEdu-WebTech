@@ -49,6 +49,7 @@
   <script src="https://unpkg.com/centrifuge@5.2.2/dist/centrifuge.js"></script>
   <script src="{% static 'ajax.js' %}"></script>
   <script src="{% static 'centrifugo.js' %}"></script>
+  <script src="{% static 'search.js' %}"></script>
 
   <!-- Title -->
   <title>{{ ctx.title|default:'AskPupkin' }}</title>
@@ -75,15 +76,22 @@
       <a class="navbar-brand text-dark me-2" href="{% url 'index' %}">
         <h1 class="">AskPupkin</h1>
       </a>
-      <div class="col-6">
+      <div class="col-6 position-relative">
         <form class="container d-flex p-0 m-0" role="ask" action="{% url 'ask_redirect' %}" method="post">
           {% csrf_token %}
           <input name="title" class="form-control me-2 col" type="search" placeholder="Ask your question"
             aria-label="ask" placeholder="Ask your question" data-bs-toggle="tooltip" data-bs-placement="bottom"
-            title="Ask your question" onfocus="this.placeholder=''"
-            onblur="this.placeholder=window.innerWidth < 576 ? 'Ask?' : 'Ask your question'">
+            title="Ask your question" onfocus="this.placeholder=''" autocomplete="off"
+            onblur="this.placeholder=window.innerWidth < 576 ? 'Ask?' : 'Ask your question'" id="ask-input">
           <button class="btn btn-success col-4 col-sm-3 col-md-2" type="submit">ASK!</button>
         </form>
+        <div class="container position-absolute bg-white border border-secondary rounded-3 shadow-sm w-50"
+          style="z-index: 1000; max-height: 300px; overflow-y: auto; display: none;" id="search-results-container">
+          <p class="text-muted mb-0"><span id="search-results-count">0</span> results</p>
+          <ul class="list-group list-group-flush p-2" id="search-results">
+            <!-- Search results will be injected here -->
+          </ul>
+        </div>
       </div>
 
       <script>

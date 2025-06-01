@@ -21,6 +21,9 @@ urlpatterns = [
     # Ajax handlers
     path("like/", views.like, name="like"),
     path("correct/", views.correct, name="correct"),
+
+    # Search
+    path("search/", views.search, name="search"),
 ]
 
 if settings.DEBUG:

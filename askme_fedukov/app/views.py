@@ -14,7 +14,8 @@ from .utils.feed import ProfileFeed
 from .utils.form_checker import (CheckSettingsForm, CheckAnswerForm,
                                  CheckAskForm, CheckRegistrationForm)
 from .utils.get import (get_feed_explore, get_feed_answers, get_feed_hot,
-                        get_question_by_id, get_questions_by_tag,)
+                        get_question_by_id, get_questions_by_tag,
+                        get_questions_by_text, get_json_data_from_request)
 from .utils.set import Like, Correct
 from .forms import ProfileForm, SettingsForm, AskForm, AnswerForm
 from .utils import redirect_to
@@ -68,9 +69,9 @@ def hot(request):
 
 def question(request, id):
     """
-    Page with a single question.
-    It shows the question and all answers to it.
-    It also allows to add a new answer.
+    Page with a single main question with answers.
+    It also has a form to add a new answer.
+    It also has a notification channel for new answers.
     """
 
     # Check if user is authenticated and set the session
@@ -135,6 +136,7 @@ def tag(request, name):
 
     return render(request, "tag.html", context=data)
 
+
 @require_POST
 def search(request):
     """
@@ -142,10 +144,21 @@ def search(request):
     It is used by the search form in the header.
     Responses with the search results.
     """
-    pass
-    
+    data = get_json_data_from_request(request)
+    question_text = data.get('query', None)
+    if question_text is None:
+        return HttpResponseBadRequest("No query provided")
 
-@require_POST
+    questions = get_questions_by_text(question_text)
+    if questions is None:
+        return HttpResponseBadRequest("No questions found")
+
+    return JsonResponse(
+        {"results": [q.to_json() for q in questions]},
+        status=200
+    )
+
+
 @login_required(login_url=reverse_lazy('login'), redirect_field_name='continue')
 def ask_redirect(request):
     """
@@ -164,8 +177,6 @@ def ask_redirect(request):
     if title_val is not None:
         params['title'] = title_val
 
-    # Redirect to ask page
-    print(f"Redirecting to ask with params: ", redirect_to('ask', params=params))
     return redirect(redirect_to('ask', params=params))
 
 
@@ -218,6 +229,7 @@ def login(request):
 
     return auth.responce_with_cookies(responce)
 
+
 def signup(request):
     """
     Page for user registration
@@ -235,7 +247,6 @@ def signup(request):
     if new_user is not None:
         responce = redirect(form_checker.redirect())
         return auth.responce_with_cookies(auth, responce)
-            
 
     # Set context for the page
     data = {"MAIN_BORDER": "0", "MAIN_COL": "9",
