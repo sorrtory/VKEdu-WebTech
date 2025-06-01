@@ -53,12 +53,25 @@ services:
       - media_volume:/home/app/web/media
     restart: unless-stopped
   
+  # Cron inside the container is a mistake
+  # Use something like supervisord or Celery for task scheduling
+  # I want to keep it as an example of bad practice
   cron:
     build:
       context: ../
       dockerfile: prod/CronDockerfile
     env_file:
       - ../.env
+    depends_on:
+      db:
+        condition: service_healthy
+      memcached:
+        condition: service_started
+      centrifugo:
+        condition: service_started
+    environment:
+      - DATABASE_HOST=db
+      - MEMCACHED_HOST=memcached
 
   nginx:
     image: nginx:latest
