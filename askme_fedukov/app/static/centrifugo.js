@@ -5,7 +5,9 @@ function subOnQuestion() {
   const channel = Cookies.get("centrifugo_channel_question");
 
   if (url && jwt && channel) {
-    const centrifuge = new Centrifuge(`ws://${url}/connection/websocket`, {
+    
+    const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+    const centrifuge = new Centrifuge(`${protocol}://${url}/connection/websocket`, {
       token: jwt
     });
 
