@@ -4,30 +4,29 @@
 
 This is a default Q&A platform taking Stack Overflow as a reference.
 
-Users have basic [features](#features) such as auth, ask, answer, like.
+Users have basic [features](#features) such as auth, ask, answer, like and some [extras](#7.Extras) as well.
 
-The app is powered by Django, Docker, and Nginx using PostgreSQL, Memcached, and Centrifugo.
+The app is powered by Django, with use of PostgreSQL, Memcached, Centrifugo and Nginx, deployed with Docker as always.
 
 ## Source task
 
 <https://github.com/ziontab/tp-tasks>
 
-## Check this out [sorrtory.ru](sorrtory.ru)
+## Check this out [here](askme.sorrtory.ru)
 
-### Run as a local prod
-
-You will have to wait till the `web` fill the database.
+### Run locally
 
 ```sh
 git clone https://github.com/sorrtory/VKEdu-WebTech.git
 cd VKEdu-WebTech
 cp .env.example.prod .env
 docker compose -f prod/docker-compose.yaml up --build
+# You will have to wait utill the `web` script fill the example database.
 ```
 
 Then you can go to [nginx page](http://localhost:1337)
 
-### Run as a devserver
+### Step by step run
 
 1. Clone the code
 
@@ -167,10 +166,10 @@ Then the [gunicorn](./prod/gunicorn.conf.py) were used with the help of django.
 
 ### Outline
 
-Django is really powerful when you need to create the app very fast.
+Django is really powerful when you need to create the app with dispatch.
 It has a lot of in-built options almost for any case and you must use them as they are.
 
-So, to sum up, if you need a simple web app the formula is `bootsrap+django+djangoREST`. \
+In short, if you need a simple web app the formula is `bootsrap+django+djangoREST`. \
 Otherwise you **don't need** to chose this framework.
 
 ### Takes
