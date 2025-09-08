@@ -4,7 +4,7 @@
 
 This is a default Q&A platform taking Stack Overflow as a reference.
 
-Users have basic [features](#features) such as auth, ask, answer, like and some [extras](#7.Extras) as well.
+Users have basic [features](#features) such as auth, ask, answer, like and some [extras](#7-extras) as well.
 
 The app is powered by Django, with use of PostgreSQL, Memcached, Centrifugo and Nginx, deployed with Docker as always.
 
@@ -12,7 +12,7 @@ The app is powered by Django, with use of PostgreSQL, Memcached, Centrifugo and 
 
 <https://github.com/ziontab/tp-tasks>
 
-## Check this out [here](askme.sorrtory.ru)
+## Check this out [here](https://askme.sorrtory.ru) \[DISABLED]
 
 ### Run locally
 
